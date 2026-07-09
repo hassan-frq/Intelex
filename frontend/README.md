@@ -9,7 +9,7 @@ This directory contains the frontend application for the AI-Powered Legal Assist
 - React Router DOM
 - Axios
 - JavaScript (ES6+)
-- CSS
+- Tailwind CSS
 
 ## Dependencies
 
@@ -20,6 +20,7 @@ This directory contains the frontend application for the AI-Powered Legal Assist
 | react-router-dom | Client-side routing |
 | axios | HTTP client for API communication |
 | vite | Development server and build tool |
+| @tailwindcss/vite | Tailwind Vite plugin |
 
 ## Installation
 

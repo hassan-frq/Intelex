@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import MainLayout from "../layouts/MainLayout";
+import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CaseBook from "../pages/CaseBook/CaseBook";
@@ -13,16 +14,89 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/cases" element={<CaseBook />} />
-        <Route path="/case/:id/speech" element={<SpeechToText />} />
-        <Route path="/case/:id/previous-cases" element={<PreviousCases />} />
-        <Route path="/case/:id/generate" element={<DocumentGenerator />} />
-        <Route path="/case/:id/preview" element={<Preview />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
+        {/* Authentication */}
+        <Route
+            path="/"
+            element={
+                <AuthLayout>
+                    <Login />
+                </AuthLayout>
+            }
+        />
+
+        <Route
+            path="/login"
+            element={
+                <AuthLayout>
+                    <Login />
+                </AuthLayout>
+            }
+        />
+
+        {/* Main Application */}
+        <Route
+            path="/dashboard"
+            element={
+                <MainLayout>
+                    <Dashboard />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/cases"
+            element={
+                <MainLayout>
+                    <CaseBook />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/case/:id/speech"
+            element={
+                <MainLayout>
+                    <SpeechToText />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/case/:id/previous-cases"
+            element={
+                <MainLayout>
+                    <PreviousCases />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/case/:id/generate"
+            element={
+                <MainLayout>
+                    <DocumentGenerator />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/case/:id/preview"
+            element={
+                <MainLayout>
+                    <Preview />
+                </MainLayout>
+            }
+        />
+
+        <Route
+            path="/settings"
+            element={
+                <MainLayout>
+                    <Settings />
+                </MainLayout>
+            }
+        />
+    </Routes>
     </BrowserRouter>
   );
 }

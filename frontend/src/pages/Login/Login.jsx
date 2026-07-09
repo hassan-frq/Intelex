@@ -13,22 +13,18 @@ function Login() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form className="space-y-5 py-2">
           <div>
-            <label className="mb-2 block text-sm text-gray-300">
-              Email
-            </label>
             <Input
+              label="Email"
               type="email"
               placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-gray-300">
-              Password
-            </label>
-            <Input
+            <Input            
+              label="Password"
               type="password"
               placeholder="Enter your password"
             />

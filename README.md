@@ -15,10 +15,10 @@ Intelex/
 
 Project documentation is available in the `docs/` directory.
 
-- Software Requirements Specification (`srs.md`)
-- Frontend Design (`frontend-design.md`)
-- UI Guidelines (`ui-guidelines.md`)
-- Task Allocation (`task-allocation.md`)
+- Software Requirements Specification (`Software_Requirements_Specification.md`)
+- Frontend Design (`Fronten_Fesign.md`)
+- UI Guidelines (`ui_guidelines.md`)
+- Task Allocation (`Task_Allocation.md`)
 
 ---
 

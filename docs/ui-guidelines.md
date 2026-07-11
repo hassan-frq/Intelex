@@ -80,6 +80,16 @@
 - Subtle shadow.
 - Consistent padding.
 
+## Scrollbars
+
+Use a dark scrollbar throughout the application.
+
+- Track: `zinc-900`
+- Thumb: `zinc-600`
+- Hover: `zinc-500`
+
+Scrollbar styling should remain consistent across all pages.
+
 ---
 
 # Layout

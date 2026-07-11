@@ -19,7 +19,7 @@ function Sidebar() {
   ];
 
   return (
-    <aside className="h-screen w-64 bg-zinc-900 border-r border-zinc-800 p-6">
+    <aside className="fixed left-0 top-0 h-screen w-64 border-r border-zinc-800 bg-zinc-900 p-6">
       <h1 className="mb-8 text-2xl font-bold text-white">Intelex</h1>
 
       <nav className="flex flex-col gap-2">

@@ -18,10 +18,10 @@ npm run dev
 Please read:
 
 - README.md
-- docs/srs.md
-- docs/frontend-design.md
-- docs/ui-guidelines.md
-- docs/task-allocation.md
+- docs/Software_Requirements_Specification.md
+- docs/Frontend_Design.md
+- docs/ui_guidelines.md
+- docs/Task_Allocation.md
 
 ---
 

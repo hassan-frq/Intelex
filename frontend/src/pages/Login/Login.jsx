@@ -8,9 +8,6 @@ function Login() {
       <Card>
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-white">Intelex</h1>
-          <p className="mt-2 text-gray-400">
-            AI-Powered Legal Assistant
-          </p>
         </div>
 
         <form className="space-y-5 py-2">

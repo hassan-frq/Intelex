@@ -17,7 +17,7 @@ npm run dev
 
 Please read:
 
-- README.md
+- frontend/README.md
 - docs/srs.md
 - docs/frontend-design.md
 - docs/ui-guidelines.md

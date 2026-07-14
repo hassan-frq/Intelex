@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import speechRoutes from "./routes/speech.routes.js";
 
 dotenv.config();
 
@@ -17,5 +18,7 @@ app.use(express.json());
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use("/api/speech", speechRoutes);
 
 export default app;

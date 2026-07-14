@@ -7,6 +7,7 @@
 import { useState, useRef } from "react";
 import Button from "../../components/common/Button/Button";
 import Loader from "../../components/common/Loader/Loader";
+import { transcribeAudio as transcribeAudioService } from "../../services/speechService";
 
 function SpeechToText() {
   const [isRecording, setIsRecording] = useState(false);
@@ -63,28 +64,8 @@ function SpeechToText() {
     setIsTranscribing(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", audioBlob, "recording.webm");
-      formData.append("model", "whisper-large-v3-turbo");
-
-      const response = await fetch(
-        "https://api.groq.com/openai/v1/audio/transcriptions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Groq API error: ${response.status} - ${errText}`);
-      }
-
-      const data = await response.json();
-      setTranscript(data.text);
+      const text = await transcribeAudioService(audioBlob);
+      setTranscript(text);
     } catch (err) {
       setError("Transcription failed. Check the console for details.");
       console.error(err);
@@ -92,6 +73,8 @@ function SpeechToText() {
       setIsTranscribing(false);
     }
   };
+
+
 
   return (
     <div className="p-8 space-y-6 max-w-2xl">

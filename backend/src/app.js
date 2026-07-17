@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import speechRoutes from "./routes/speech.routes.js";
+import keywordsRoutes from "./routes/keywords.routes.js";
 
 dotenv.config();
 
@@ -20,5 +21,6 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/speech", speechRoutes);
+app.use("/api/keywords", keywordsRoutes);
 
 export default app;

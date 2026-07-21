@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
+import ProtectedRoute from "./ProtectedRoutes";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CaseBook from "../pages/CaseBook/CaseBook";
@@ -14,89 +15,17 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Authentication */}
-        <Route
-            path="/"
-            element={
-                <AuthLayout>
-                    <Login />
-                </AuthLayout>
-            }
-        />
+        <Route path="/" element={<AuthLayout><Login /></AuthLayout>} />
+        <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
 
-        <Route
-            path="/login"
-            element={
-                <AuthLayout>
-                    <Login />
-                </AuthLayout>
-            }
-        />
-
-        {/* Main Application */}
-        <Route
-            path="/dashboard"
-            element={
-                <MainLayout>
-                    <Dashboard />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/cases"
-            element={
-                <MainLayout>
-                    <CaseBook />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/speech"
-            element={
-                <MainLayout>
-                    <SpeechToText />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/previous-cases"
-            element={
-                <MainLayout>
-                    <PreviousCases />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/generate"
-            element={
-                <MainLayout>
-                    <DocumentGenerator />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/preview"
-            element={
-                <MainLayout>
-                    <Preview />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/settings"
-            element={
-                <MainLayout>
-                    <Settings />
-                </MainLayout>
-            }
-        />
-    </Routes>
+        <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
+        <Route path="/cases" element={<ProtectedRoute><MainLayout><CaseBook /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/speech" element={<ProtectedRoute><MainLayout><SpeechToText /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/previous-cases" element={<ProtectedRoute><MainLayout><PreviousCases /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/generate" element={<ProtectedRoute><MainLayout><DocumentGenerator /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/preview" element={<ProtectedRoute><MainLayout><Preview /></MainLayout></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
+      </Routes>
     </BrowserRouter>
   );
 }

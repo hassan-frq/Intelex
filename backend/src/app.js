@@ -1,9 +1,8 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import speechRoutes from "./routes/speech.routes.js";
-
-dotenv.config();
+import authRoutes from "./routes/auth.routes.js";
+import { requireAuth } from "./middleware/auth.middleware.js";
 
 const app = express();
 
@@ -14,11 +13,11 @@ app.use(
 );
 app.use(express.json());
 
-// Health check — quick way to confirm the server's alive
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/speech", speechRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/speech", requireAuth, speechRoutes);
 
 export default app;

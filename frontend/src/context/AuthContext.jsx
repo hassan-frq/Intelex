@@ -29,12 +29,18 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((updatedUser) => {
+    localStorage.setItem("intelex_user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+  }, []);
+
   const value = {
     user,
     token,
     isAuthenticated: Boolean(token),
     login,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

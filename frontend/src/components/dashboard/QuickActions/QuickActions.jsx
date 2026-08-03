@@ -12,8 +12,8 @@ function QuickActions() {
     {
       title: "New Case",
       icon: <FiFolderPlus size={20} />,
-      onClick: null, // disabled until Case Book backend exists
-      disabled: true,
+      onClick: () => navigate("/cases"),
+      disabled: false,
     },
     {
       title: "Start Recording",

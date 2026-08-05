@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Islamabad High Court - Civil Jurisdiction Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.2in 1in 1.2in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      letter-spacing: 0.5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-style: italic;
+      font-size: 13px;
+      margin-top: -20px;
+      margin-bottom: 30px;
+    }
+    .case-number {
+      text-align: right;
+      font-weight: bold;
+      margin-bottom: 35px;
+      font-size: 15px;
+    }
+    .party-block {
+      margin-bottom: 30px;
+    }
+    .party-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .party-name {
+      font-weight: bold;
+      max-width: 75%;
+    }
+    .party-role {
+      font-style: italic;
+      white-space: nowrap;
+    }
+    .versus-row {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 15px 0;
+      letter-spacing: 1px;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5px solid #000000;
+      margin: 25px 0;
+    }
+    .metadata-box {
+      border: 2px solid #000000;
+      padding: 15px;
+      margin: 25px 0;
+      background-color: #fafafa;
+      font-size: 14px;
+      line-height: 1.8;
+      font-family: "Times New Roman", Georgia, serif;
+    }
+    .metadata-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 5px;
+    }
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 10px;
+    }
+    .metadata-label {
+      font-weight: bold;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-decoration: underline;
+      text-transform: uppercase;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 35px;
+    }
+    .salutation {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 25px;
+      text-align: justify;
+    }
+    .statement-list li {
+      margin-bottom: 15px;
+      padding-left: 10px;
+    }
+    .prayer-body {
+      font-style: italic;
+      text-align: justify;
+      padding-left: 15px;
+      margin-bottom: 40px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 50px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .verification-block {
+      border: 1px solid #111111;
+      padding: 20px;
+      margin-top: 50px;
+      page-break-inside: avoid;
+    }
+    .verification-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE ISLAMABAD HIGH COURT, ISLAMABAD
+  </div>
+  <div class="court-jurisdiction">
+    ( CIVIL REVISIONAL / APPELLATE JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    Civil Revision No. {{caseNumber}}
+  </div>
+
+  <div class="party-block">
+    <div class="party-row">
+      <span class="party-name">{{petitioner}}</span>
+      <span class="party-role">... Petitioner</span>
+    </div>
+    
+    <div class="versus-row">
+      VERSUS
+    </div>
+    
+    <div class="party-row">
+      <span class="party-name">{{respondent}}</span>
+      <span class="party-role">... Respondent(s)</span>
+    </div>
+  </div>
+
+  <div class="metadata-box">
+    <div class="metadata-title">Suit Valuation & Court Fees</div>
+    <div class="metadata-grid">
+      <div class="metadata-label">Value of Suit:</div>
+      <div>{{suitValue}}</div>
+      <div class="metadata-label">Court Fee Paid:</div>
+      <div>{{courtFee}}</div>
+      <div class="metadata-label">Challenged Decree/Order:</div>
+      <div>Judgment dated {{impugnedOrderDate}} passed by {{impugnedCourt}}</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    CIVIL REVISION UNDER SECTION 115 OF THE CODE OF CIVIL PROCEDURE (CPC), 1908 AGAINST THE JUDGMENT / DECREE DATED {{impugnedOrderDate}} REGARDING: {{subject}}
+  </div>
+
+  <div class="salutation">
+    MOST RESPECTFULLY SHEWETH:
+  </div>
+
+  <ol class="statement-list">
+    {{facts}}
+  </ol>
+
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="A">
+    {{grounds}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
+  <div class="prayer-body">
+    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to accept this revision petition, set aside the impugned judgments and decrees of the lower courts, and decree the suit as originally prayed. Any other relief that this Honorable Court deems fit may also be awarded.
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Islamabad</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Through:</div>
+      <div class="counsel-name">{{advocate}}</div>
+      <div style="font-size: 12px; color: #555555;">Advocate High Court</div>
+    </div>
+  </div>
+
+  <div class="verification-block">
+    <div class="verification-title">Verification</div>
+    <p style="text-indent: 0.5in; text-align: justify; margin: 0; font-size: 13px;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of the above petition from paragraph numbers 1 to {{caseId}} are true to the best of my personal knowledge, and the rest are true to the best of my information and belief.
+    </p>
+    <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+      <div style="text-align: center; width: 150px; border-top: 1px solid #111111; padding-top: 5px; font-weight: bold; font-size: 12px;">
+        PETITIONER
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supreme Court of Pakistan - Appellate Jurisdiction Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.2in 1in 1.2in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 15px;
+      line-height: 2;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      letter-spacing: 0.5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-style: italic;
+      font-size: 14px;
+      margin-top: -25px;
+      margin-bottom: 35px;
+    }
+    .case-number {
+      text-align: right;
+      font-weight: bold;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+    .party-block {
+      margin-bottom: 30px;
+    }
+    .party-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .party-name {
+      font-weight: bold;
+      max-width: 75%;
+    }
+    .party-role {
+      font-style: italic;
+      white-space: nowrap;
+    }
+    .versus-row {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 20px 0;
+      letter-spacing: 1px;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5px solid #000000;
+      margin: 30px 0;
+    }
+    .metadata-box {
+      border: 2px solid #000000;
+      padding: 15px;
+      margin: 25px 0;
+      background-color: #fafafa;
+      font-size: 14px;
+      line-height: 1.8;
+      font-family: "Times New Roman", Georgia, serif;
+    }
+    .metadata-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 5px;
+    }
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 10px;
+    }
+    .metadata-label {
+      font-weight: bold;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-decoration: underline;
+      text-transform: uppercase;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 35px;
+      margin-bottom: 15px;
+      letter-spacing: 0.5px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 25px;
+      text-align: justify;
+    }
+    .statement-list li {
+      margin-bottom: 20px;
+      padding-left: 10px;
+    }
+    .prayer-body {
+      font-style: italic;
+      text-align: justify;
+      padding-left: 15px;
+      margin-bottom: 50px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE SUPREME COURT OF PAKISTAN
+  </div>
+  <div class="court-jurisdiction">
+    ( APPELLATE JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    Civil Petition for Leave to Appeal No. {{caseNumber}}
+  </div>
+
+  <div class="party-block">
+    <div class="party-row">
+      <span class="party-name">{{petitioner}}</span>
+      <span class="party-role">... Petitioner(s)</span>
+    </div>
+    
+    <div class="versus-row">
+      VERSUS
+    </div>
+    
+    <div class="party-row">
+      <span class="party-name">{{respondent}}</span>
+      <span class="party-role">... Respondent(s)</span>
+    </div>
+  </div>
+
+  <div class="metadata-box">
+    <div class="metadata-title">Details of Challenge</div>
+    <div class="metadata-grid">
+      <div class="metadata-label">Challenged (Impugned) Court:</div>
+      <div>{{impugnedCourt}}</div>
+      <div class="metadata-label">Date of Challenged Judgment:</div>
+      <div>{{impugnedOrderDate}}</div>
+      <div class="metadata-label">High Court Case Number:</div>
+      <div>{{caseNumber}}</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    PETITION UNDER ARTICLE 185(3) OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 FOR LEAVE TO APPEAL IN REGARD TO: {{subject}}
+  </div>
+
+  <div class="section-title">Respectfully Sheweth:</div>
+  <ol class="statement-list">
+    {{facts}}
+  </ol>
+
+  <div class="section-title">Questions of Law:</div>
+  <ol class="statement-list">
+    {{questionsOfLaw}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
+  <div class="prayer-body">
+    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to grant leave to appeal against the impugned judgment of the High Court, set aside the challenged decree/order, and grant recovery/relief to the petitioner as requested. Any other relief that this Honorable Court deems fit may also be awarded.
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Islamabad</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Through:</div>
+      <div class="counsel-name">{{advocate}}</div>
+      <div style="font-size: 13px; color: #555555;">Advocate-on-Record (AOR)</div>
+    </div>
+  </div>
+
+</body>
+</html>

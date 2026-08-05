@@ -1,10 +1,9 @@
-
   /**
  * Extracting legal keywords from transcript using Groq API
  * @param {string} transcript 
  * @returns {Promise<string[]>} 
  */
-export async function extractKeywords(transcript) {
+export async function extractKeywordsWithGroq(transcript) {
   if (!transcript || !transcript.trim()) {
     return [];
   }

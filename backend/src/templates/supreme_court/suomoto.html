@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supreme Court of Pakistan - Sou Moto Response Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.2in 1in 1.2in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 15px;
+      line-height: 2;
+      color: #111111;
+      margin: 0;
+      padding: 0;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-style: italic;
+      font-size: 14px;
+      margin-top: -25px;
+      margin-bottom: 35px;
+    }
+    .case-number {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 40px;
+      font-size: 16px;
+      text-decoration: underline;
+    }
+    .reference-block {
+      margin-bottom: 30px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5px solid #000000;
+      margin: 30px 0;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .salutation {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 25px;
+      text-align: justify;
+    }
+    .statement-list li {
+      margin-bottom: 20px;
+      padding-left: 10px;
+    }
+    .conclusion-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 40px;
+      margin-bottom: 15px;
+    }
+    .conclusion-body {
+      text-align: justify;
+      margin-bottom: 50px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 60px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE SUPREME COURT OF PAKISTAN
+  </div>
+  <div class="court-jurisdiction">
+    ( ORIGINAL JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    SOU MOTO CASE NO. {{caseNumber}}
+  </div>
+
+  <div class="reference-block">
+    IN THE MATTER OF:<br>
+    {{subject}}<br>
+    AND RESPONSE SUBMITTED ON BEHALF OF THE AGGRIEVED/INTERVENER
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    WRITTEN STATEMENT / RESPONSE FILED BY {{petitioner}} IN RESPONSE TO THE NOTICE ISSUED BY THIS HONORABLE COURT
+  </div>
+
+  <div class="salutation">
+    May it please this Honorable Court,
+  </div>
+
+  <ol class="statement-list">
+    {{facts}}
+  </ol>
+
+  <div class="conclusion-title">
+    CONCLUDING SUBMISSION:
+  </div>
+  <div class="conclusion-body">
+    {{prayer}}
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Islamabad</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Submitted By:</div>
+      <div class="counsel-name">{{petitioner}}</div>
+      <div style="font-size: 13px; color: #555555;">Answering Party / Intervener</div>
+    </div>
+  </div>
+
+</body>
+</html>

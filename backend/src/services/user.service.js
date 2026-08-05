@@ -8,23 +8,23 @@ import {
 } from "../models/user.model.js";
 import { AuthError } from "./auth.service.js";
 
-export function getProfile(userId) {
-  const user = findUserById(userId);
+export async function getProfile(userId) {
+  const user = await findUserById(userId);
   if (!user) {
     throw new AuthError("User not found");
   }
   return user;
 }
 
-export function updateProfile(userId, { name, email }) {
+export async function updateProfile(userId, { name, email }) {
   if (email) {
-    const existing = findUserByEmail(email);
+    const existing = await findUserByEmail(email);
     if (existing && existing.id !== userId) {
       throw new ValidationError("That email is already in use");
     }
   }
 
-  const updated = updateUser(userId, { name, email });
+  const updated = await updateUser(userId, { name, email });
   if (!updated) {
     throw new AuthError("User not found");
   }
@@ -32,7 +32,7 @@ export function updateProfile(userId, { name, email }) {
 }
 
 export async function changePassword(userId, currentPassword, newPassword) {
-  const user = findUserWithPasswordById(userId);
+  const user = await findUserWithPasswordById(userId);
   if (!user) {
     throw new AuthError("User not found");
   }
@@ -47,7 +47,7 @@ export async function changePassword(userId, currentPassword, newPassword) {
   }
 
   const newHash = await bcrypt.hash(newPassword, 10);
-  updateUserPassword(userId, newHash);
+  await updateUserPassword(userId, newHash);
 }
 
 export class ValidationError extends Error {

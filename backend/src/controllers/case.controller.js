@@ -19,48 +19,48 @@ function handleError(err, res) {
   return res.status(500).json({ error: "Something went wrong." });
 }
 
-export function getCases(req, res) {
+export async function getCases(req, res) {
   try {
-    const cases = listCases(req.user.id);
+    const cases = await listCases(req.user.id);
     res.json({ cases });
   } catch (err) {
     handleError(err, res);
   }
 }
 
-export function getCaseById(req, res) {
+export async function getCaseById(req, res) {
   try {
     const id = Number(req.params.id);
-    const caseItem = getCase(id, req.user.id);
+    const caseItem = await getCase(id, req.user.id);
     res.json({ case: caseItem });
   } catch (err) {
     handleError(err, res);
   }
 }
 
-export function createCase(req, res) {
+export async function createCase(req, res) {
   try {
-    const caseItem = addCase(req.user.id, req.body);
+    const caseItem = await addCase(req.user.id, req.body);
     res.status(201).json({ case: caseItem });
   } catch (err) {
     handleError(err, res);
   }
 }
 
-export function updateCase(req, res) {
+export async function updateCase(req, res) {
   try {
     const id = Number(req.params.id);
-    const caseItem = editCase(id, req.user.id, req.body);
+    const caseItem = await editCase(id, req.user.id, req.body);
     res.json({ case: caseItem });
   } catch (err) {
     handleError(err, res);
   }
 }
 
-export function deleteCase(req, res) {
+export async function deleteCase(req, res) {
   try {
     const id = Number(req.params.id);
-    removeCase(id, req.user.id);
+    await removeCase(id, req.user.id);
     res.status(204).send();
   } catch (err) {
     handleError(err, res);

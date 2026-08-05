@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { login as loginRequest } from "../services/authService";
+import { login as loginRequest, register as registerRequest } from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -12,6 +12,18 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const { token: newToken, user: newUser } = await loginRequest(email, password);
+
+    localStorage.setItem("intelex_token", newToken);
+    localStorage.setItem("intelex_user", JSON.stringify(newUser));
+
+    setToken(newToken);
+    setUser(newUser);
+
+    return newUser;
+  }, []);
+
+  const register = useCallback(async (name, email, password) => {
+    const { token: newToken, user: newUser } = await registerRequest(name, email, password);
 
     localStorage.setItem("intelex_token", newToken);
     localStorage.setItem("intelex_user", JSON.stringify(newUser));
@@ -39,6 +51,7 @@ export function AuthProvider({ children }) {
     token,
     isAuthenticated: Boolean(token),
     login,
+    register,
     logout,
     updateUser,
   };

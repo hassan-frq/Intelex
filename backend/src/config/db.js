@@ -1,24 +1,15 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import postgres from "postgres";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const connectionString = process.env.DATABASE_URL;
 
-const DB_PATH = path.join(__dirname, "../data/db.json");
-
-function ensureDbFile() {
-  if (!fs.existsSync(DB_PATH)) {
-    fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
-    fs.writeFileSync(DB_PATH, JSON.stringify({ users: [] }, null, 2));
-  }
+if (!connectionString) {
+  throw new Error(
+    "DATABASE_URL is not set. Add it to backend/.env (see .env.example)."
+  );
 }
 
-export function readDb() {
-  ensureDbFile();
-  const raw = fs.readFileSync(DB_PATH, "utf-8");
-  return JSON.parse(raw);
-}
+const sql = postgres(connectionString, {
+  ssl: "require",
+});
 
-export function writeDb(data) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-}
+export default sql;

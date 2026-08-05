@@ -41,17 +41,17 @@ function validateStatus(status) {
   }
 }
 
-export function listCases(userId) {
+export async function listCases(userId) {
   return getAllCases(userId);
 }
 
-export function getCase(id, userId) {
-  const caseItem = findCaseById(id, userId);
+export async function getCase(id, userId) {
+  const caseItem = await findCaseById(id, userId);
   if (!caseItem) throw new NotFoundError("Case not found.");
   return caseItem;
 }
 
-export function addCase(userId, data) {
+export async function addCase(userId, data) {
   validateCaseInput(data, true);
   validateStatus(data.status);
 
@@ -67,7 +67,7 @@ export function addCase(userId, data) {
   });
 }
 
-export function editCase(id, userId, data) {
+export async function editCase(id, userId, data) {
   validateCaseInput(data, false);
   validateStatus(data.status);
 
@@ -78,13 +78,13 @@ export function editCase(id, userId, data) {
     throw new ValidationError("Client name cannot be empty.");
   }
 
-  const updated = updateCase(id, userId, data);
+  const updated = await updateCase(id, userId, data);
   if (!updated) throw new NotFoundError("Case not found.");
   return updated;
 }
 
-export function removeCase(id, userId) {
-  const success = deleteCase(id, userId);
+export async function removeCase(id, userId) {
+  const success = await deleteCase(id, userId);
   if (!success) throw new NotFoundError("Case not found.");
   return true;
 }

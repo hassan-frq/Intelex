@@ -1,23 +1,23 @@
-import { readDb, writeDb } from "../config/db.js";
+import sql from "../config/db.js";
 
-function ensureCasesArray(db) {
-  if (!db.cases) db.cases = [];
-  return db;
+export async function getAllCases(userId) {
+  return sql`
+    SELECT * FROM cases
+    WHERE user_id = ${userId}
+    ORDER BY created_at DESC
+  `;
 }
 
-export function getAllCases(userId) {
-  const db = ensureCasesArray(readDb());
-  return db.cases
-    .filter((c) => c.user_id === userId)
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+export async function findCaseById(id, userId) {
+  const rows = await sql`
+    SELECT * FROM cases
+    WHERE id = ${id} AND user_id = ${userId}
+    LIMIT 1
+  `;
+  return rows[0] || null;
 }
 
-export function findCaseById(id, userId) {
-  const db = ensureCasesArray(readDb());
-  return db.cases.find((c) => c.id === id && c.user_id === userId) || null;
-}
-
-export function createCase({
+export async function createCase({
   userId,
   title,
   client,
@@ -27,57 +27,65 @@ export function createCase({
   description,
   date,
 }) {
-  const db = ensureCasesArray(readDb());
-
-  const newCase = {
-    id: db.cases.length ? Math.max(...db.cases.map((c) => c.id)) + 1 : 1,
-    user_id: userId,
-    title,
-    client,
-    court: court || "",
-    case_number: caseNumber || "",
-    status: status || "open",
-    description: description || "",
-    date: date || null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-
-  db.cases.push(newCase);
-  writeDb(db);
-  return newCase;
+  const rows = await sql`
+    INSERT INTO cases (
+      user_id, title, client, court, case_number, status, description, date
+    ) VALUES (
+      ${userId},
+      ${title},
+      ${client},
+      ${court || ""},
+      ${caseNumber || ""},
+      ${status || "open"},
+      ${description || ""},
+      ${date || null}
+    )
+    RETURNING *
+  `;
+  return rows[0];
 }
 
-export function updateCase(id, userId, updates) {
-  const db = ensureCasesArray(readDb());
-  const caseItem = db.cases.find((c) => c.id === id && c.user_id === userId);
-  if (!caseItem) return null;
+const FIELD_MAP = {
+  title: "title",
+  client: "client",
+  court: "court",
+  caseNumber: "case_number",
+  status: "status",
+  description: "description",
+  date: "date",
+};
 
-  const fieldMap = {
-    title: "title",
-    client: "client",
-    court: "court",
-    caseNumber: "case_number",
-    status: "status",
-    description: "description",
-    date: "date",
-  };
+export async function updateCase(id, userId, updates) {
+  const existing = await findCaseById(id, userId);
+  if (!existing) return null;
 
-  for (const [key, dbField] of Object.entries(fieldMap)) {
-    if (updates[key] !== undefined) caseItem[dbField] = updates[key];
+  const merged = { ...existing };
+  for (const [key, dbField] of Object.entries(FIELD_MAP)) {
+    if (updates[key] !== undefined) merged[dbField] = updates[key];
   }
 
-  caseItem.updated_at = new Date().toISOString();
-  writeDb(db);
-  return caseItem;
+  const rows = await sql`
+    UPDATE cases
+    SET
+      title = ${merged.title},
+      client = ${merged.client},
+      court = ${merged.court},
+      case_number = ${merged.case_number},
+      status = ${merged.status},
+      description = ${merged.description},
+      date = ${merged.date},
+      updated_at = now()
+    WHERE id = ${id} AND user_id = ${userId}
+    RETURNING *
+  `;
+  return rows[0] || null;
 }
 
-export function deleteCase(id, userId) {
-  const db = ensureCasesArray(readDb());
-  const index = db.cases.findIndex((c) => c.id === id && c.user_id === userId);
-  if (index === -1) return false;
-
-  db.cases.splice(index, 1);
-  writeDb(db);
-  return true;
+export async function deleteCase(id, userId) {
+  const rows = await sql`
+    DELETE FROM cases
+    WHERE id = ${id} AND user_id = ${userId}
+    RETURNING id
+  `;
+  return rows.length > 0;
 }

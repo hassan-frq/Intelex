@@ -14,16 +14,16 @@ function handleError(err, res) {
   return res.status(500).json({ error: "Something went wrong. Please try again." });
 }
 
-export function getMe(req, res) {
+export async function getMe(req, res) {
   try {
-    const user = getProfile(req.user.id);
+    const user = await getProfile(req.user.id);
     res.json({ user });
   } catch (err) {
     handleError(err, res);
   }
 }
 
-export function updateMe(req, res) {
+export async function updateMe(req, res) {
   const { name, email } = req.body;
 
   if (!name && !email) {
@@ -31,7 +31,7 @@ export function updateMe(req, res) {
   }
 
   try {
-    const user = updateProfile(req.user.id, { name, email });
+    const user = await updateProfile(req.user.id, { name, email });
     res.json({ user });
   } catch (err) {
     handleError(err, res);

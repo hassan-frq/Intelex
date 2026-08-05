@@ -10,6 +10,7 @@ import PreviousCases from "../pages/PreviousCases/PreviousCases";
 import DocumentGenerator from "../pages/DocumentGenerator/DocumentGenerator";
 import Preview from "../pages/Preview/Preview";
 import Settings from "../pages/Settings/Settings";
+import Register from "../pages/Register/Register";
 
 function AppRoutes() {
   return (
@@ -17,7 +18,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<AuthLayout><Login /></AuthLayout>} />
         <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
-
+        <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+        
         <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
         <Route path="/cases" element={<ProtectedRoute><MainLayout><CaseBook /></MainLayout></ProtectedRoute>} />
         <Route path="/case/:id/speech" element={<ProtectedRoute><MainLayout><SpeechToText /></MainLayout></ProtectedRoute>} />

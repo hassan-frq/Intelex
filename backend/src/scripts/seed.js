@@ -1,6 +1,8 @@
 // Run with: npm run seed
+import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { findUserByEmail, createUser } from "../models/user.model.js";
+import sql from "../config/db.js";
 
 const TEST_USER = {
   name: "Test User",
@@ -9,7 +11,7 @@ const TEST_USER = {
 };
 
 async function seed() {
-  const existing = findUserByEmail(TEST_USER.email);
+  const existing = await findUserByEmail(TEST_USER.email);
 
   if (existing) {
     console.log(`User ${TEST_USER.email} already exists (id ${existing.id}). Skipping.`);
@@ -17,7 +19,7 @@ async function seed() {
   }
 
   const passwordHash = await bcrypt.hash(TEST_USER.password, 10);
-  const user = createUser({
+  const user = await createUser({
     name: TEST_USER.name,
     email: TEST_USER.email,
     passwordHash,
@@ -29,4 +31,9 @@ async function seed() {
   console.log(`  id: ${user.id}`);
 }
 
-seed();
+seed()
+  .catch((err) => {
+    console.error("Seed failed:", err);
+    process.exitCode = 1;
+  })
+  .finally(() => sql.end());

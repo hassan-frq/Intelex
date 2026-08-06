@@ -75,7 +75,7 @@ function CaseBook() {
       caseNumber: caseItem.case_number || "",
       status: caseItem.status,
       description: caseItem.description || "",
-      date: caseItem.date || "",
+      date: caseItem.date ? String(caseItem.date).slice(0, 10) : "",
     });
     setFormError("");
     setModalOpen(true);

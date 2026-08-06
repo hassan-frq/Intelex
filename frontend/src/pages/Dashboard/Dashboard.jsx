@@ -1,5 +1,4 @@
 import StatCard from "../../components/dashboard/StatCard/StatCard";
-import ActivityCard from "../../components/dashboard/ActivityCard/ActivityCard";
 import QuickActions from "../../components/dashboard/QuickActions/QuickActions";
 import { FiFolder, FiFileText, FiMic } from "react-icons/fi";
 
@@ -27,9 +26,6 @@ function Dashboard() {
 
       {/* Quick Actions */}
       <QuickActions />
-
-      {/* Recent Activity */}
-      <ActivityCard />
     </div>
   );
 }

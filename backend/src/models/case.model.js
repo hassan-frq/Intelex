@@ -73,7 +73,7 @@ export async function updateCase(id, userId, updates) {
       case_number = ${merged.case_number},
       status = ${merged.status},
       description = ${merged.description},
-      date = ${merged.date},
+      date = ${merged.date || null},
       updated_at = now()
     WHERE id = ${id} AND user_id = ${userId}
     RETURNING *

@@ -6,6 +6,7 @@ import { requireAuth } from "./middleware/auth.middleware.js";
 import keywordsRoutes from "./routes/keywords.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import caseRoutes from "./routes/case.routes.js";
+import documentRoutes from "./routes/document.routes.js";
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use("/api/speech", requireAuth, speechRoutes);
 app.use("/api/keywords", requireAuth, keywordsRoutes);
 app.use("/api/users", requireAuth, userRoutes);
 app.use("/api/cases", requireAuth, caseRoutes);
+app.use("/api", requireAuth, documentRoutes);
 
 export default app;

@@ -10,6 +10,7 @@ import Button from "../../components/common/Button/Button";
 import Input from "../../components/common/Input/Input";
 import Modal from "../../components/common/Modal/Modal";
 import Loader from "../../components/common/Loader/Loader";
+import CaseDocuments from "./CaseDocuments";
 
 const STATUS_OPTIONS = [
   { value: "open", label: "Open" },
@@ -183,7 +184,17 @@ function CaseBook() {
               <div className="mt-4 space-y-1 text-sm text-zinc-500">
                 {caseItem.court && <p>Court: {caseItem.court}</p>}
                 {caseItem.case_number && <p>Case #: {caseItem.case_number}</p>}
-                {caseItem.date && <p>Date: {caseItem.date}</p>}
+                {caseItem.date && (
+                  <p>
+                    Date:{" "}
+                    {new Date(caseItem.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                )}
+
               </div>
 
               {caseItem.description && (
@@ -208,6 +219,8 @@ function CaseBook() {
                   {deletingId === caseItem.id ? "Deleting..." : "Delete"}
                 </button>
               </div>
+
+              <CaseDocuments caseId={caseItem.id} />
             </div>
           ))}
         </div>

@@ -86,7 +86,7 @@ function SpeechToText() {
     }, CHUNK_DURATION_MS);
   };
 
-const stopRecording = () => {
+  const stopRecording = () => {
     isRecordingRef.current = false;
     setIsRecording(false);
 
@@ -120,18 +120,18 @@ const stopRecording = () => {
   };
 
   const transcribeFullAudio = async (audioBlob) => {
-  setIsTranscribing(true);
+    setIsTranscribing(true);
 
-  try {
-    const text = await transcribeAudioService(audioBlob);
-    setTranscript(text);
-  } catch (err) {
-    setError("Full transcription failed. Check the console for details.");
-    console.error(err);
-  } finally {
-    setIsTranscribing(false);
-  }
-};
+    try {
+      const text = await transcribeAudioService(audioBlob);
+      setTranscript(text);
+    } catch (err) {
+      setError("Full transcription failed. Check the console for details.");
+      console.error(err);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
 
   const handleExtractKeywords = async () => {
     if (!transcript) return;
@@ -161,7 +161,16 @@ const stopRecording = () => {
       {transcript && (
         <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-4 shadow-lg shadow-black/20">
           <p className="text-sm text-zinc-400 mb-2 font-medium">Transcript:</p>
-          <p className="text-white leading-relaxed">{transcript}</p>
+          <textarea
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            readOnly={isRecording}
+            rows={6}
+            className="w-full bg-zinc-800 text-white rounded-xl border border-zinc-700 p-3 leading-relaxed resize-none focus:outline-none focus:border-blue-500 scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-600 hover:scrollbar-thumb-zinc-500"
+          />
+          {!isRecording && (
+            <p className="text-xs text-zinc-500 mt-2">You can edit the transcript before extracting keywords.</p>
+          )}
         </div>
       )}
 

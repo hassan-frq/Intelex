@@ -17,6 +17,8 @@ function SpeechToText() {
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const isRecordingRef = useRef(false);
+  const fullRecorderRef = useRef(null);
+  const fullChunksRef = useRef([]);
 
   const startRecording = async () => {
     setError("");
@@ -29,6 +31,20 @@ function SpeechToText() {
       isRecordingRef.current = true;
       setIsRecording(true);
 
+      // Full recorder — runs start to finish, produces one clean complete blob
+      fullChunksRef.current = [];
+      const fullRecorder = new MediaRecorder(stream);
+      fullRecorderRef.current = fullRecorder;
+
+      fullRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          fullChunksRef.current.push(event.data);
+        }
+      };
+
+      fullRecorder.start();
+
+      // Chunked recorder — fires every 5s for live feel
       recordChunk(stream);
     } catch (err) {
       setError("Microphone access was denied or unavailable.");
@@ -70,11 +86,22 @@ function SpeechToText() {
     }, CHUNK_DURATION_MS);
   };
 
-  const stopRecording = () => {
+const stopRecording = () => {
     isRecordingRef.current = false;
     setIsRecording(false);
+
+    // Stop chunked recorder
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
+    }
+
+    // Stop full recorder and transcribe the complete audio
+    if (fullRecorderRef.current && fullRecorderRef.current.state !== "inactive") {
+      fullRecorderRef.current.onstop = async () => {
+        const fullBlob = new Blob(fullChunksRef.current, { type: "audio/webm" });
+        await transcribeFullAudio(fullBlob);
+      };
+      fullRecorderRef.current.stop();
     }
   };
 
@@ -91,6 +118,20 @@ function SpeechToText() {
       setIsTranscribing(false);
     }
   };
+
+  const transcribeFullAudio = async (audioBlob) => {
+  setIsTranscribing(true);
+
+  try {
+    const text = await transcribeAudioService(audioBlob);
+    setTranscript(text);
+  } catch (err) {
+    setError("Full transcription failed. Check the console for details.");
+    console.error(err);
+  } finally {
+    setIsTranscribing(false);
+  }
+};
 
   const handleExtractKeywords = async () => {
     if (!transcript) return;

@@ -17,7 +17,6 @@ import { transcribeAudio } from "../../services/speechService";
 import { generateDocument } from "../../services/documentService";
 import html2pdf from "html2pdf.js";
 
-// Configuration Arrays: Easily extensible in code by developer in the future
 const COURTS = [
   { 
     id: "supreme_court", 
@@ -147,11 +146,59 @@ const COURT_DOCUMENT_TYPES = {
   ]
 };
 
+const CHUNK_DURATION_MS = 5000;
+
+const DYNAMIC_FIELDS_CONFIG = {
+  civil: [
+    { key: "suitValue", label: "Value of Suit", placeholder: "e.g., PKR 5,000,000", type: "text" },
+    { key: "courtFee", label: "Court Fee Affixed/Paid", placeholder: "e.g., PKR 15,000", type: "text" },
+    { key: "impugnedCourt", label: "Impugned Court/Tribunal", placeholder: "e.g., District Judge, Lahore", type: "text" },
+    { key: "impugnedOrderDate", label: "Impugned Order/Decree Date", placeholder: "", type: "date" },
+  ],
+  corporate: [
+    { key: "companyName", label: "Company Name", placeholder: "e.g., Apex Industries (Pvt) Ltd", type: "text" },
+    { key: "cuin", label: "CUIN Number", placeholder: "e.g., 0043219", type: "text" },
+    { key: "authorizedCapital", label: "Authorized Capital", placeholder: "e.g., PKR 10,000,000", type: "text" },
+    { key: "paidUpCapital", label: "Paid-up Capital", placeholder: "e.g., PKR 1,000,000", type: "text" },
+    { key: "registeredAddress", label: "Registered Office Address", placeholder: "e.g., 45-Main Boulevard, Gulberg, Lahore", type: "text", fullWidth: true },
+  ],
+  criminal: [
+    { key: "firNo", label: "FIR Number", placeholder: "e.g., 412/2026", type: "text" },
+    { key: "firDate", label: "Date of FIR Registration", placeholder: "", type: "date" },
+    { key: "offense", label: "Offenses (PPC Sections)", placeholder: "e.g., Section 324/34 PPC", type: "text" },
+    { key: "policeStation", label: "Police Station", placeholder: "e.g., PS Anarkali, Lahore", type: "text" },
+  ],
+  commercial: [
+    { key: "principalAmount", label: "Principal Amount", placeholder: "e.g., PKR 25,000,000", type: "text" },
+    { key: "interestMarkup", label: "Interest / Markup", placeholder: "e.g., 18% per annum", type: "text" },
+    { key: "totalClaim", label: "Total Claim Amount", placeholder: "e.g., PKR 29,500,000", type: "text" },
+  ],
+  tax: [
+    { key: "taxYear", label: "Tax Year", placeholder: "e.g., 2025", type: "text" },
+    { key: "assessedIncome", label: "Assessed Income", placeholder: "e.g., PKR 12,000,000", type: "text" },
+    { key: "disputedTax", label: "Disputed Tax Demand", placeholder: "e.g., PKR 3,500,050", type: "text" },
+    { key: "tribunalOrderDate", label: "Date of Tribunal Order", placeholder: "", type: "date" },
+  ],
+  appellate: [
+    { key: "impugnedCourt", label: "Challenged (Impugned) Court", placeholder: "e.g., Lahore High Court", type: "text" },
+    { key: "impugnedOrderDate", label: "Date of Impugned Judgment", placeholder: "", type: "date" },
+  ],
+  review: [
+    { key: "impugnedCourt", label: "Challenged (Impugned) Court", placeholder: "e.g., Supreme Court of Pakistan", type: "text" },
+    { key: "impugnedOrderDate", label: "Date of Judgment to Review", placeholder: "", type: "date" },
+  ],
+  transfer: [
+    { key: "impugnedCourt", label: "Source High Court", placeholder: "e.g., High Court of Sindh", type: "text" },
+  ],
+  contempt: [
+    { key: "impugnedOrderDate", label: "Violated Order Date", placeholder: "", type: "date" },
+  ]
+};
+
 function DocumentGenerator() {
-  // Navigation and generator steps: 'config' | 'generating' | 'editor'
+  
   const [step, setStep] = useState("config");
   
-  // Selection states
   const [selectedCourtId, setSelectedCourtId] = useState(COURTS[0].id);
   const [selectedDocTypeId, setSelectedDocTypeId] = useState(COURT_DOCUMENT_TYPES[COURTS[0].id][0].id);
   
@@ -163,7 +210,15 @@ function DocumentGenerator() {
   const [advocate, setAdvocate] = useState("");
   const [draftDate, setDraftDate] = useState(new Date().toISOString().split("T")[0]);
   
-  // Keep selection synchronized when court changes
+  const [extraMetadata, setExtraMetadata] = useState({});
+
+  const handleExtraMetadataChange = (key, val) => {
+    setExtraMetadata(prev => ({
+      ...prev,
+      [key]: val
+    }));
+  };
+  
   useEffect(() => {
     const validTypes = COURT_DOCUMENT_TYPES[selectedCourtId] || [];
     if (validTypes.length > 0) {
@@ -172,31 +227,34 @@ function DocumentGenerator() {
         setSelectedDocTypeId(validTypes[0].id);
       }
     }
+    setExtraMetadata({});
   }, [selectedCourtId, selectedDocTypeId]);
 
-  // Audio Recording States
+  
   const [isRecording, setIsRecording] = useState(false);
   const [recordingState, setRecordingState] = useState("idle"); // 'idle' | 'recording' | 'transcribing' | 'success' | 'error'
   const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
   const timerIntervalRef = useRef(null);
+  const streamRef = useRef(null);
+  const isRecordingRef = useRef(false);
+  const transcriptsMapRef = useRef({});
 
   // Generation loading states
   const [loadingStageIndex, setLoadingStageIndex] = useState(0);
   const loadingStages = [
     "Analyzing case metadata...",
     "Sending request to Llama legal engine...",
-    "Formatting document layout to superior court conventions...",
+    "Formatting document layout to  court conventions...",
     "Injecting petitioner and respondent signatures...",
     "Finalizing document preview..."
   ];
 
-  // Rich Text Editor editable state
+  //  Text Editor editable state
   const [editableContent, setEditableContent] = useState("");
   const editorRef = useRef(null);
   
-  // Custom toast notification state
+  //  toast notification state
   const [toastMessage, setToastMessage] = useState("");
 
   const selectedCourt = COURTS.find(c => c.id === selectedCourtId) || COURTS[0];
@@ -228,48 +286,77 @@ function DocumentGenerator() {
     };
   }, [isRecording]);
 
+  const recordChunk = (stream, seq) => {
+    if (!isRecordingRef.current) return;
+
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    const chunks = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(chunks, { type: "audio/webm" });
+
+      
+      if (isRecordingRef.current) {
+        recordChunk(stream, seq + 1);
+      } else {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+
+      //   transcription in the background
+      try {
+        setRecordingState("transcribing");
+        const transcriptText = await transcribeAudio(audioBlob);
+        if (transcriptText && transcriptText.trim()) {
+          transcriptsMapRef.current[seq] = transcriptText.trim();
+
+
+          const sortedSeqs = Object.keys(transcriptsMapRef.current)
+            .map(Number)
+            .sort((a, b) => a - b);
+          const orderedTexts = sortedSeqs.map((s) => transcriptsMapRef.current[s]);
+          
+          setSubject(orderedTexts.join(" "));
+          setRecordingState("success");
+        } else {
+          
+          setRecordingState("success");
+        }
+      } catch (err) {
+        console.error(`Transcription failed for chunk ${seq}:`, err);
+        setRecordingState("error");
+      }
+    };
+
+    mediaRecorder.start();
+
+    setTimeout(() => {
+      if (mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+      }
+    }, CHUNK_DURATION_MS);
+  };
+
   // Audio Capture Start
   const startRecording = async () => {
-    audioChunksRef.current = [];
+    transcriptsMapRef.current = {};
+    setRecordingState("idle");
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        // Close audio track streams
-        stream.getTracks().forEach(track => track.stop());
-        
-        setRecordingState("transcribing");
-        try {
-          showToast("Sending voice clip for transcription...");
-          const transcriptText = await transcribeAudio(audioBlob);
-          if (transcriptText && transcriptText.trim()) {
-            setSubject(prev => prev ? `${prev} ${transcriptText}` : transcriptText);
-            setRecordingState("success");
-            showToast("Speech transcribed successfully!");
-          } else {
-            setRecordingState("error");
-            showToast("No clear speech detected. Please try again.");
-          }
-        } catch (err) {
-          console.error("Transcription failed:", err);
-          setRecordingState("error");
-          showToast("Failed to transcribe audio. Please type manually.");
-        }
-      };
-
-      mediaRecorder.start();
+      streamRef.current = stream;
+      isRecordingRef.current = true;
       setIsRecording(true);
       setRecordingState("recording");
-      showToast("Dictation started. Click stop when finished speaking.");
+      showToast("Dictation started. Speak into your mic.");
+
+      recordChunk(stream, 0);
     } catch (err) {
       console.error("Failed to access microphone:", err);
       showToast("Microphone access denied. Check your browser permissions.");
@@ -278,10 +365,12 @@ function DocumentGenerator() {
 
   // Audio Capture Stop
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    isRecordingRef.current = false;
+    setIsRecording(false);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
     }
+    showToast("Dictation stopped. Finalizing transcription...");
   };
 
   // Handle Document Generation Trigger
@@ -290,7 +379,7 @@ function DocumentGenerator() {
     setStep("generating");
     setLoadingStageIndex(0);
 
-    // Simulate progressive visual stages while call is in progress
+    
     const loadingTimer = setInterval(() => {
       setLoadingStageIndex(prev => {
         if (prev < loadingStages.length - 1) return prev + 1;
@@ -308,10 +397,11 @@ function DocumentGenerator() {
         caseNumber,
         advocate,
         draftDate,
-        subject
+        subject,
+        extraMetadata
       };
 
-      // Call actual document generator endpoint
+      
       const htmlContent = await generateDocument(metadata, subject);
       
       clearInterval(loadingTimer);
@@ -333,11 +423,10 @@ function DocumentGenerator() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  // High-Fidelity PDF Export using html2pdf.js (Direct File Download)
+  
   const handleDownload = () => {
     const content = editorRef.current ? editorRef.current.innerHTML : editableContent;
     
-    // Create a temporary container styled exactly as an A4 page with appropriate margins
     const element = document.createElement("div");
     
     // Standard legal margins layout styling
@@ -346,10 +435,10 @@ function DocumentGenerator() {
     element.style.lineHeight = "2";
     element.style.color = "#111111";
     element.style.width = "100%";
-    element.style.padding = "0.2in 0.2in 0.2in 0.5in"; // Padding offset to ensure bind-line aligns correctly
+    element.style.padding = "0.2in 0.2in 0.2in 0.5in"; 
     element.innerHTML = content;
     
-    // Configure html2pdf options
+    
     const opt = {
       margin:       [0.8, 1.2, 0.8, 0.8], // [top, left, bottom, right] in inches
       filename:     `${selectedDocType.id}_supreme_court.pdf`.toLowerCase(),
@@ -372,7 +461,7 @@ function DocumentGenerator() {
     }
   };
 
-  // Rich Text Editor formatting wrapper
+  //  Text Editor formatting wrapper
   const formatText = (command) => {
     document.execCommand(command, false, null);
     if (editorRef.current) {
@@ -395,7 +484,7 @@ function DocumentGenerator() {
         </div>
       )}
 
-      {/* Header Panel */}
+      
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
@@ -525,19 +614,6 @@ function DocumentGenerator() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
-                    Case / Writ Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., W.P. No. 4392 / 2026"
-                    value={caseNumber}
-                    onChange={(e) => setCaseNumber(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
                     Advocate On Record
                   </label>
                   <input
@@ -548,7 +624,49 @@ function DocumentGenerator() {
                     className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                    Case / Writ Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., W.P. No. 1245 / 2026"
+                    value={caseNumber}
+                    onChange={(e) => setCaseNumber(e.target.value)}
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                  />
+                </div>
               </div>
+
+              {/* Dynamic Case Data Fields Section */}
+              {DYNAMIC_FIELDS_CONFIG[selectedDocTypeId] && DYNAMIC_FIELDS_CONFIG[selectedDocTypeId].length > 0 && (
+                <div className="rounded-xl border border-zinc-850 bg-zinc-950/40 p-5 space-y-4">
+                  <div className="flex items-center gap-2 border-b border-zinc-855 pb-2">
+                    <span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse" />
+                    <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                        {selectedDocType.name}
+                    </h4>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {DYNAMIC_FIELDS_CONFIG[selectedDocTypeId].map((field) => (
+                      <div key={field.key} className={field.fullWidth ? "sm:col-span-2" : ""}>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                          {field.label}
+                        </label>
+                        <input
+                          type={field.type}
+                          required
+                          placeholder={field.placeholder}
+                          value={extraMetadata[field.key] || ""}
+                          onChange={(e) => handleExtraMetadataChange(field.key, e.target.value)}
+                          className="w-full rounded-xl border border-zinc-805 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
@@ -556,7 +674,7 @@ function DocumentGenerator() {
                     Subject / Fact Summary
                   </label>
                   
-                  {/* Inline Dictation Assist */}
+                  
                   <div className="flex items-center gap-3">
                     {isRecording && (
                       <span className="flex items-center gap-1.5 text-xs text-red-500 font-semibold animate-pulse">
@@ -629,7 +747,7 @@ function DocumentGenerator() {
       {step === "generating" && (
         <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
           <div className="relative flex h-20 w-20 items-center justify-center">
-            {/* Spinning ring outer */}
+            
             <div className="absolute h-full w-full rounded-full border-4 border-zinc-800 border-t-blue-600 animate-spin" />
             <FiFileText className="h-8 w-8 text-blue-500 animate-pulse" />
           </div>
@@ -715,7 +833,8 @@ function DocumentGenerator() {
                       caseNumber,
                       advocate,
                       draftDate,
-                      subject
+                      subject,
+                      extraMetadata
                     };
                     const freshHtml = await generateDocument(metadata, subject);
                     setEditableContent(freshHtml);
@@ -752,17 +871,16 @@ function DocumentGenerator() {
 
           <div className="grid gap-6 lg:grid-cols-12">
             
-            {/* Editor Sheet (A4 Styled editable layout) */}
             <div className="lg:col-span-8 bg-zinc-950 p-8 rounded-2xl border border-zinc-800 flex justify-center shadow-inner overflow-x-auto min-h-[850px]">
               
-              {/* Paper Sheet container */}
+              
               <div className="w-full max-w-[800px] min-h-[1050px] bg-white text-zinc-900 p-16 md:p-20 shadow-2xl rounded-sm border border-zinc-200 flex flex-col justify-between font-serif relative">
                 
-                {/* Traditional Pakistani Legal double-red-line margin on the left */}
+                
                 <div className="absolute left-10 md:left-12 top-0 bottom-0 border-l border-red-200 pointer-events-none" />
                 <div className="absolute left-[44px] md:left-[52px] top-0 bottom-0 border-l-2 border-red-300/40 pointer-events-none" />
                 
-                {/* Editable Document Wrapper */}
+                
                 <div 
                   ref={editorRef}
                   contentEditable={true}
@@ -779,7 +897,7 @@ function DocumentGenerator() {
 
             </div>
 
-            {/* Editing tips Sidebar */}
+            
             <div className="lg:col-span-4 space-y-6">
               <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 space-y-4 shadow-lg">
                 <h3 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">

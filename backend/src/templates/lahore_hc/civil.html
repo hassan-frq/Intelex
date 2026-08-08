@@ -6,39 +6,48 @@
   <style>
     @page {
       size: A4;
-      margin: 1.2in 1in 1.2in 1.5in;
+      margin: 1.0in 1.0in 1.0in 1.5in;
     }
     body {
-      font-family: "Times New Roman", Georgia, serif;
-      font-size: 14px;
-      line-height: 1.8;
-      color: #111111;
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
       margin: 0;
       padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
     }
     .court-header {
       text-align: center;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 16pt;
       text-transform: uppercase;
-      margin-bottom: 25px;
-      letter-spacing: 0.5px;
+      margin-bottom: 5px;
     }
     .court-jurisdiction {
       text-align: center;
-      font-style: italic;
-      font-size: 13px;
-      margin-top: -20px;
-      margin-bottom: 30px;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .case-number {
       text-align: right;
       font-weight: bold;
-      margin-bottom: 35px;
-      font-size: 15px;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
     }
     .party-block {
-      margin-bottom: 30px;
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .party-row {
       display: flex;
@@ -47,46 +56,35 @@
       margin-bottom: 10px;
     }
     .party-name {
-      font-weight: bold;
       max-width: 75%;
     }
     .party-role {
-      font-style: italic;
       white-space: nowrap;
     }
     .versus-row {
       text-align: center;
-      font-weight: bold;
-      text-transform: uppercase;
       margin: 15px 0;
-      letter-spacing: 1px;
-    }
-    .divider {
-      border: 0;
-      border-top: 1.5px solid #000000;
-      margin: 25px 0;
     }
     .metadata-box {
-      border: 2px solid #000000;
-      padding: 15px;
-      margin: 25px 0;
-      background-color: #fafafa;
-      font-size: 14px;
-      line-height: 1.8;
-      font-family: "Times New Roman", Georgia, serif;
+      border: 1.5pt solid #000000;
+      padding: 12pt;
+      margin: 20px 0;
+      font-size: 14pt;
+      line-height: 1.5;
     }
     .metadata-title {
       font-weight: bold;
       text-transform: uppercase;
       text-align: center;
       margin-bottom: 10px;
-      border-bottom: 1.5px solid #000000;
+      border-bottom: 1.5pt solid #000000;
       padding-bottom: 5px;
+      font-size: 14pt;
     }
     .metadata-grid {
       display: grid;
       grid-template-columns: 2fr 3fr;
-      gap: 10px;
+      gap: 8px;
     }
     .metadata-label {
       font-weight: bold;
@@ -94,42 +92,42 @@
     .subject-title {
       text-align: center;
       font-weight: bold;
-      text-decoration: underline;
       text-transform: uppercase;
-      font-size: 15px;
-      line-height: 1.6;
-      margin-bottom: 35px;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
     }
     .salutation {
       font-weight: bold;
+      font-size: 14pt;
       margin-bottom: 15px;
     }
     .section-title {
       font-weight: bold;
+      font-size: 14pt;
       text-transform: uppercase;
-      margin-top: 30px;
+      margin-top: 25px;
       margin-bottom: 10px;
     }
     .statement-list {
       margin-left: 0;
-      padding-left: 25px;
+      padding-left: 0.5in;
       text-align: justify;
     }
     .statement-list li {
-      margin-bottom: 15px;
-      padding-left: 10px;
+      margin-bottom: 12pt;
+      padding-left: 5pt;
     }
     .prayer-body {
-      font-style: italic;
       text-align: justify;
-      padding-left: 15px;
-      margin-bottom: 40px;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
     }
     .footer-block {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 50px;
+      margin-top: 40px;
       page-break-inside: avoid;
     }
     .counsel-signature {
@@ -139,17 +137,19 @@
       font-weight: bold;
       margin-top: 5px;
     }
-    .verification-block {
-      border: 1px solid #111111;
-      padding: 20px;
-      margin-top: 50px;
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 30px;
+      font-size: 12pt;
       page-break-inside: avoid;
     }
-    .verification-title {
+    .block-title {
       font-weight: bold;
       text-align: center;
       text-transform: uppercase;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      font-size: 13pt;
       text-decoration: underline;
     }
   </style>
@@ -164,7 +164,7 @@
   </div>
 
   <div class="case-number">
-    Civil Revision No. {{caseNumber}}
+    Civil Revision No. ________ / 2026
   </div>
 
   <div class="party-block">
@@ -183,26 +183,25 @@
     </div>
   </div>
 
+  <!-- Mandatory Valuation & Court Fee Block (LHC Rule Page 5 Item 5) -->
   <div class="metadata-box">
-    <div class="metadata-title">Suit Valuation & Court Fees</div>
+    <div class="metadata-title">Valuation & Court Fee Block</div>
     <div class="metadata-grid">
       <div class="metadata-label">Value of Suit:</div>
       <div>{{suitValue}}</div>
-      <div class="metadata-label">Court Fee Paid:</div>
+      <div class="metadata-label">Court Fee Affixed:</div>
       <div>{{courtFee}}</div>
-      <div class="metadata-label">Challenged Judgments:</div>
+      <div class="metadata-label">Impugned Orders:</div>
       <div>Judgment dated {{impugnedOrderDate}} passed by {{impugnedCourt}}</div>
     </div>
   </div>
 
-  <hr class="divider" />
-
   <div class="subject-title">
-    CIVIL REVISION UNDER SECTION 115 OF THE CODE OF CIVIL PROCEDURE (CPC), 1908 AGAINST THE JUDGMENT / DECREE DATED {{impugnedOrderDate}} REGARDING: {{subject}}
+    CIVIL REVISION UNDER SECTION 115 OF THE CODE OF CIVIL PROCEDURE (CPC), 1908 AGAINST THE JUDGMENT & DECREE DATED {{impugnedOrderDate}} REGARDING: {{subject}}
   </div>
 
   <div class="salutation">
-    MOST RESPECTFULLY SHEWETH:
+    RESPECTFULLY SHEWETH:
   </div>
 
   <ol class="statement-list">
@@ -216,7 +215,7 @@
 
   <div class="section-title">PRAYER:</div>
   <div class="prayer-body">
-    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to accept this revision petition, set aside the impugned judgments and decrees of the lower courts, and decree the suit as originally prayed. Any other relief that this Honorable Court deems fit may also be awarded.
+    It is most respectfully prayed that this Honorable Court may be pleased to accept this Revision Petition, set aside the impugned judgment and decree passed by the appellate court, and restore the suit/decree as originally prayed.
   </div>
 
   <div class="footer-block">
@@ -227,17 +226,21 @@
     <div class="counsel-signature">
       <div>Through:</div>
       <div class="counsel-name">{{advocate}}</div>
-      <div style="font-size: 12px; color: #555555;">Advocate High Court</div>
+      <div style="font-size: 12pt;">Advocate High Court</div>
     </div>
   </div>
 
-  <div class="verification-block">
-    <div class="verification-title">Verification</div>
-    <p style="text-indent: 0.5in; text-align: justify; margin: 0; font-size: 13px;">
-      Verified on Oath at Lahore on this {{draftDate}} that the contents of the above petition from paragraph numbers 1 to {{caseId}} are true to the best of my personal knowledge, and the rest are true to the best of my information and belief.
+  <!-- Mandatory Order VI Rule 15 CPC Verification (LHC Rule Page 5 Item 9) -->
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath (Order VI Rule 15 CPC)</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Lahore on this {{draftDate}} that paragraphs 1 to {{caseId}} are true to my personal knowledge, while the remaining paragraphs are true to my legal belief based upon advice received from my counsel.
     </p>
-    <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
-      <div style="text-align: center; width: 150px; border-top: 1px solid #111111; padding-top: 5px; font-weight: bold; font-size: 12px;">
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        COUNSEL
+      </div>
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
         PETITIONER
       </div>
     </div>

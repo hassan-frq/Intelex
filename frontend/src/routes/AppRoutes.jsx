@@ -4,7 +4,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CaseBook from "../pages/CaseBook/CaseBook";
-import SpeechToText from "../pages/SpeechToText/SpeechToText";
+
 import PreviousCases from "../pages/PreviousCases/PreviousCases";
 import DocumentGenerator from "../pages/DocumentGenerator/DocumentGenerator";
 import Preview from "../pages/Preview/Preview";
@@ -52,14 +52,7 @@ function AppRoutes() {
             }
         />
 
-        <Route
-            path="/case/:id/speech"
-            element={
-                <MainLayout>
-                    <SpeechToText />
-                </MainLayout>
-            }
-        />
+
 
         <Route
             path="/case/:id/previous-cases"

@@ -2,43 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Supreme Court of Pakistan - Petition Template</title>
+  <title>Supreme Court of Pakistan - Original Jurisdiction Template</title>
   <style>
     @page {
       size: A4;
-      margin: 1.2in 1in 1.2in 1.5in; /* 1.5 inch left margin for binding */
+      margin: 1.0in 1.0in 1.0in 1.5in;
     }
     body {
-      font-family: "Times New Roman", Georgia, serif;
-      font-size: 15px;
-      line-height: 2;
-      color: #111111;
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
       margin: 0;
       padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
     }
     .court-header {
       text-align: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16pt;
       text-transform: uppercase;
-      margin-bottom: 30px;
-      letter-spacing: 0.5px;
+      margin-bottom: 5px;
     }
     .court-jurisdiction {
       text-align: center;
-      font-style: italic;
-      font-size: 14px;
-      margin-top: -25px;
-      margin-bottom: 35px;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .case-number {
       text-align: right;
       font-weight: bold;
-      margin-bottom: 40px;
-      font-size: 16px;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
     }
     .party-block {
-      margin-bottom: 30px;
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .party-row {
       display: flex;
@@ -47,65 +56,60 @@
       margin-bottom: 10px;
     }
     .party-name {
-      font-weight: bold;
       max-width: 75%;
     }
     .party-role {
-      font-style: italic;
       white-space: nowrap;
     }
     .versus-row {
       text-align: center;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 20px 0;
-      letter-spacing: 1px;
+      margin: 15px 0;
     }
     .divider {
       border: 0;
-      border-top: 1.5px solid #000000;
-      margin: 30px 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
     }
     .subject-title {
       text-align: center;
       font-weight: bold;
-      text-decoration: underline;
       text-transform: uppercase;
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 40px;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
     }
     .salutation {
       font-weight: bold;
-      margin-bottom: 20px;
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 25px;
+      margin-bottom: 10px;
     }
     .statement-list {
       margin-left: 0;
-      padding-left: 25px;
+      padding-left: 0.5in;
       text-align: justify;
     }
     .statement-list li {
-      margin-bottom: 20px;
-      padding-left: 10px;
-    }
-    .prayer-title {
-      font-weight: bold;
-      text-transform: uppercase;
-      margin-top: 40px;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
+      margin-bottom: 12pt;
+      padding-left: 5pt;
     }
     .prayer-body {
-      font-style: italic;
       text-align: justify;
-      padding-left: 15px;
-      margin-bottom: 50px;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
     }
     .footer-block {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 60px;
+      margin-top: 40px;
       page-break-inside: avoid;
     }
     .counsel-signature {
@@ -114,6 +118,21 @@
     .counsel-name {
       font-weight: bold;
       margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -127,13 +146,13 @@
   </div>
 
   <div class="case-number">
-    Writ Petition No. {{caseNumber}}
+    CONSTITUTION PETITION NO. ________ / 2026
   </div>
 
   <div class="party-block">
     <div class="party-row">
       <span class="party-name">{{petitioner}}</span>
-      <span class="party-role">... Petitioner</span>
+      <span class="party-role">... Petitioner(s)</span>
     </div>
     
     <div class="versus-row">
@@ -142,27 +161,30 @@
     
     <div class="party-row">
       <span class="party-name">{{respondent}}</span>
-      <span class="party-role">... Respondents</span>
+      <span class="party-role">... Respondent(s)</span>
     </div>
   </div>
 
   <hr class="divider" />
 
   <div class="subject-title">
-    WRIT PETITION UNDER ARTICLE 184(3) OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 REGARDING {{subject}}
+    CONSTITUTION PETITION UNDER ARTICLE 184(3) OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 ON A MATTER OF PUBLIC IMPORTANCE INVOLVING FUNDAMENTAL RIGHTS REGARDING: {{subject}}
   </div>
 
   <div class="salutation">
-    Respectfully Sheweth,
+    RESPECTFULLY SHEWETH:
   </div>
 
   <ol class="statement-list">
     {{facts}}
   </ol>
 
-  <div class="prayer-title">
-    PRAYER:
-  </div>
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="A">
+    {{grounds}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
   <div class="prayer-body">
     {{prayer}}
   </div>
@@ -175,7 +197,34 @@
     <div class="counsel-signature">
       <div>Through:</div>
       <div class="counsel-name">{{advocate}}</div>
-      <div style="font-size: 13px; color: #555555;">Advocate Supreme Court</div>
+      <div style="font-size: 12pt;">Advocate-on-Record (AOR)</div>
+    </div>
+  </div>
+
+  <!-- Verification on Oath -->
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to my personal knowledge and belief, and nothing material has been concealed.
+    </p>
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        ADVOCATE-ON-RECORD
+      </div>
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        PETITIONER
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-Pendency Certificate -->
+  <div class="legal-block" style="margin-top: 20px;">
+    <div class="block-title">Non-Pendency Certificate</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Certified that no identical Constitution Petition under Article 184(3) has been filed or is pending before this Supreme Court of Pakistan.
+    </p>
+    <div style="text-align: right; margin-top: 30px;">
+      <span style="font-weight: bold;">ADVOCATE-ON-RECORD (AOR)</span>
     </div>
   </div>
 

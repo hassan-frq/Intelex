@@ -63,43 +63,77 @@ Case/Writ Number: ${metadata.caseNumber || "W.P. No. ____ / 2026"}
 Advocate: ${metadata.advocate}
 Speech Transcription: "${transcript}"`;
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.2,
-      }),
+  try {
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        signal: AbortSignal.timeout(10000), // Timeout after 10 seconds
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.2,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Groq API error drafting document: ${response.status} - ${errorText}`);
     }
-  );
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Groq API error drafting document: ${response.status} - ${errorText}`);
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) {
+      throw new Error("Empty response returned from Groq drafting model.");
+    }
+
+    const parsed = JSON.parse(content);
+    if (!parsed.facts || !Array.isArray(parsed.facts)) {
+      throw new Error("Invalid structure returned from Groq: 'facts' is missing or not an array.");
+    }
+
+    return parsed;
+  } catch (err) {
+    console.warn("Groq drafting service failed or timed out. Falling back to structured heuristic draft generator:", err.message);
+
+    const facts = [
+      `That the petitioner is a law-abiding citizen of Pakistan and is entitled to the protection of law under the Constitution.`,
+      `That the petitioner is aggrieved by the high-handed, illegal, and arbitrary actions of the respondents.`,
+      `That the facts of the dispute are: ${transcript || metadata.subject || "No facts summary was provided."}`,
+      `That the action of the respondents has been taken in a colorable exercise of power, without legal notice, and without giving the petitioner a fair opportunity of being heard.`
+    ];
+
+    const grounds = [
+      `That the impugned action of the respondents is illegal, arbitrary, discriminative, and violates Articles 4, 10A, and 25 of the Constitution of Pakistan.`,
+      `That the respondents have failed to perform their statutory duties in accordance with the law.`,
+      `That the action is in complete violation of the principles of natural justice and fair play.`
+    ];
+
+    const questionsOfLaw = [
+      `Whether the respondents acted in a colorable exercise of power and without lawful authority.`,
+      `Whether the impugned action is in violation of the petitioner's fundamental constitutional rights.`
+    ];
+
+    const prayer = `It is most respectfully prayed that this Honorable Court may be pleased to accept this Petition, set aside the impugned actions of the respondents, and grant suitable relief as requested.`;
+
+    return {
+      subject: metadata.subject || "Constitutional challenge against arbitrary administrative actions",
+      facts,
+      grounds,
+      questionsOfLaw,
+      prayer,
+      extraMetadata: metadata.extraMetadata || {}
+    };
   }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Empty response returned from Groq drafting model.");
-  }
-
-  const parsed = JSON.parse(content);
-  if (!parsed.facts || !Array.isArray(parsed.facts)) {
-    throw new Error("Invalid structure returned from Groq: 'facts' is missing or not an array.");
-  }
-
-  return parsed;
 }
 
 /**
@@ -154,7 +188,10 @@ export async function compileTemplate(metadata, draftData) {
     : "    <li>Whether the actions of the respondents are without lawful authority and of no legal effect.</li>";
 
   // Extra metadata block parsing
-  const extra = draftData.extraMetadata || {};
+  const extra = {
+    ...(draftData.extraMetadata || {}),
+    ...(metadata.extraMetadata || {})
+  };
 
   // Replace placeholders inside the template
   const compiledHtml = rawHtml

@@ -8,7 +8,8 @@ export async function transcribeAudio(req, res) {
 
     const transcript = await transcribeWithGroq(
       req.file.buffer,
-      req.file.originalname
+      req.file.originalname,
+      req.file.mimetype
     );
 
     res.json({ transcript });

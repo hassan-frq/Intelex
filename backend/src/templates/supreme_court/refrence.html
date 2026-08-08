@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Supreme Court of Pakistan - Writ Template</title>
+  <title>Supreme Court of Pakistan - Presidential Reference Template</title>
   <style>
     @page {
       size: A4;
@@ -37,33 +37,20 @@
       margin-bottom: 25px;
     }
     .case-number {
-      text-align: right;
+      text-align: center;
       font-weight: bold;
       font-size: 16pt;
       text-transform: uppercase;
       margin-bottom: 30px;
+      text-decoration: underline;
     }
-    .party-block {
+    .reference-header {
       font-size: 16pt;
       font-weight: bold;
       text-transform: uppercase;
-      margin-bottom: 25px;
-    }
-    .party-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .party-name {
-      max-width: 75%;
-    }
-    .party-role {
-      white-space: nowrap;
-    }
-    .versus-row {
       text-align: center;
-      margin: 15px 0;
+      margin-bottom: 30px;
+      line-height: 1.5;
     }
     .divider {
       border: 0;
@@ -100,11 +87,6 @@
       margin-bottom: 12pt;
       padding-left: 5pt;
     }
-    .prayer-body {
-      text-align: justify;
-      text-indent: 0.5in;
-      margin-bottom: 30px;
-    }
     .footer-block {
       display: flex;
       justify-content: space-between;
@@ -112,27 +94,12 @@
       margin-top: 40px;
       page-break-inside: avoid;
     }
-    .counsel-signature {
+    .executive-signature {
       text-align: right;
     }
-    .counsel-name {
+    .executive-name {
       font-weight: bold;
       margin-top: 5px;
-    }
-    .legal-block {
-      border: 1pt solid #000000;
-      padding: 15pt;
-      margin-top: 25px;
-      font-size: 12pt;
-      page-break-inside: avoid;
-    }
-    .block-title {
-      font-weight: bold;
-      text-align: center;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      font-size: 13pt;
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -142,65 +109,53 @@
     IN THE SUPREME COURT OF PAKISTAN
   </div>
   <div class="court-jurisdiction">
-    ( ORIGINAL JURISDICTION )
+    ( ADVISORY JURISDICTION )
   </div>
 
   <div class="case-number">
-    Writ Petition No. ________ / 2026
+    SPECIAL REFERENCE NO. ________ OF 2026
   </div>
 
-  <div class="party-block">
-    <div class="party-row">
-      <span class="party-name">{{petitioner}}</span>
-      <span class="party-role">... Petitioner</span>
-    </div>
-    
-    <div class="versus-row">
-      VERSUS
-    </div>
-    
-    <div class="party-row">
-      <span class="party-name">{{respondent}}</span>
-      <span class="party-role">... Respondents</span>
-    </div>
+  <div class="reference-header">
+    REFERENCE BY THE PRESIDENT OF THE ISLAMIC REPUBLIC OF PAKISTAN UNDER ARTICLE 186 OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973
   </div>
 
   <hr class="divider" />
 
   <div class="subject-title">
-    PETITION UNDER ARTICLE 184(3) OF THE CONSTITUTION OF PAKISTAN FOR ISSUANCE OF WRIT OF CERTIORARI / MANDAMUS REGARDING: {{subject}}
+    SPECIAL REFERENCE ON A QUESTION OF LAW OF PUBLIC IMPORTANCE REGARDING: {{subject}}
   </div>
 
   <div class="salutation">
-    RESPECTFULLY SHEWETH:
+    MAY IT PLEASE THE HONORABLE CHIEF JUSTICE AND ASSOCIATE JUDGES OF THE SUPREME COURT OF PAKISTAN:
   </div>
 
+  <div class="section-title">STATEMENT OF CONSTITUTIONAL IMPASSE / FACTS:</div>
   <ol class="statement-list">
     {{facts}}
   </ol>
 
-  <div class="section-title">PRAYER:</div>
-  <div class="prayer-body">
-    {{prayer}}
-  </div>
+  <!-- Specific Questions for Advisory Opinion (SC Rules Page 7 Item 3) -->
+  <div class="section-title">SPECIFIC QUESTIONS OF LAW FOR ADVISORY OPINION:</div>
+  <ol class="statement-list">
+    {{questionsOfLaw}}
+  </ol>
+
+  <div class="section-title">FORMAL SUBMISSION:</div>
+  <p>
+    The President of the Islamic Republic of Pakistan formally submits the aforementioned Question(s) of Law to the Supreme Court of Pakistan for its opinion under Article 186 of the Constitution.
+  </p>
 
   <div class="footer-block">
     <div>
       <div>Dated: <strong>{{draftDate}}</strong></div>
-      <div>Place: <strong>Islamabad</strong></div>
+      <div>Place: <strong>Aiwan-e-Sadr, Islamabad</strong></div>
     </div>
-    <div class="counsel-signature">
-      <div>Through:</div>
-      <div class="counsel-name">{{advocate}}</div>
-      <div style="font-size: 12pt;">Advocate-on-Record (AOR)</div>
+    <div class="executive-signature">
+      <div>By Order and on behalf of the President:</div>
+      <div class="executive-name">ATTORNEY GENERAL FOR PAKISTAN</div>
+      <div style="font-size: 12pt;">Supreme Court of Pakistan</div>
     </div>
-  </div>
-
-  <div class="legal-block">
-    <div class="block-title">Verification on Oath</div>
-    <p style="text-indent: 0.5in; margin: 0;">
-      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to the best of my personal knowledge and belief.
-    </p>
   </div>
 
 </body>

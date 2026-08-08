@@ -6,39 +6,48 @@
   <style>
     @page {
       size: A4;
-      margin: 1.2in 1in 1.2in 1.5in;
+      margin: 1.0in 1.0in 1.0in 1.5in;
     }
     body {
-      font-family: "Times New Roman", Georgia, serif;
-      font-size: 15px;
-      line-height: 2;
-      color: #111111;
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
       margin: 0;
       padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
     }
     .court-header {
       text-align: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16pt;
       text-transform: uppercase;
-      margin-bottom: 30px;
-      letter-spacing: 0.5px;
+      margin-bottom: 5px;
     }
     .court-jurisdiction {
       text-align: center;
-      font-style: italic;
-      font-size: 14px;
-      margin-top: -25px;
-      margin-bottom: 35px;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .case-number {
       text-align: right;
       font-weight: bold;
-      margin-bottom: 40px;
-      font-size: 16px;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
     }
     .party-block {
-      margin-bottom: 30px;
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .party-row {
       display: flex;
@@ -47,86 +56,85 @@
       margin-bottom: 10px;
     }
     .party-name {
-      font-weight: bold;
       max-width: 75%;
     }
     .party-role {
-      font-style: italic;
       white-space: nowrap;
     }
     .versus-row {
       text-align: center;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 20px 0;
-      letter-spacing: 1px;
-    }
-    .divider {
-      border: 0;
-      border-top: 1.5px solid #000000;
-      margin: 30px 0;
+      margin: 15px 0;
     }
     .metadata-box {
-      border: 2px solid #000000;
-      padding: 15px;
-      margin: 25px 0;
-      background-color: #fafafa;
-      font-size: 14px;
-      line-height: 1.8;
-      font-family: "Times New Roman", Georgia, serif;
+      border: 1.5pt solid #000000;
+      padding: 12pt;
+      margin: 20px 0;
+      font-size: 14pt;
+      line-height: 1.5;
+      background-color: #ffffff;
     }
     .metadata-title {
       font-weight: bold;
       text-transform: uppercase;
       text-align: center;
       margin-bottom: 10px;
-      border-bottom: 1.5px solid #000000;
+      border-bottom: 1.5pt solid #000000;
       padding-bottom: 5px;
+      font-size: 14pt;
     }
     .metadata-grid {
       display: grid;
-      grid-template-columns: 2fr 3fr;
-      gap: 10px;
+      grid-template-columns: 2.2fr 3fr;
+      gap: 8px;
     }
     .metadata-label {
       font-weight: bold;
     }
+    .divider {
+      border: 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
+    }
     .subject-title {
       text-align: center;
       font-weight: bold;
-      text-decoration: underline;
       text-transform: uppercase;
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 40px;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
     }
     .section-title {
       font-weight: bold;
+      font-size: 14pt;
       text-transform: uppercase;
-      margin-top: 35px;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
+      margin-top: 25px;
+      margin-bottom: 10px;
     }
     .statement-list {
       margin-left: 0;
-      padding-left: 25px;
+      padding-left: 0.5in;
       text-align: justify;
     }
     .statement-list li {
-      margin-bottom: 20px;
-      padding-left: 10px;
+      margin-bottom: 12pt;
+      padding-left: 5pt;
     }
     .prayer-body {
-      font-style: italic;
       text-align: justify;
-      padding-left: 15px;
-      margin-bottom: 50px;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
     }
     .footer-block {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 60px;
+      margin-top: 40px;
       page-break-inside: avoid;
     }
     .counsel-signature {
@@ -135,6 +143,21 @@
     .counsel-name {
       font-weight: bold;
       margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -148,7 +171,7 @@
   </div>
 
   <div class="case-number">
-    Civil/Crl. Transfer Petition No. {{caseNumber}}
+    Transfer Petition No. ________ / 2026
   </div>
 
   <div class="party-block">
@@ -167,37 +190,41 @@
     </div>
   </div>
 
+  <!-- Status Report Block (SC Rules Page 7 Item 2) -->
   <div class="metadata-box">
-    <div class="metadata-title">Case Pending Details</div>
+    <div class="metadata-title">Pending Case Status Details</div>
     <div class="metadata-grid">
       <div class="metadata-label">Pending Case Title:</div>
       <div>{{petitioner}} VS {{respondent}}</div>
       <div class="metadata-label">Source High Court:</div>
       <div>{{impugnedCourt}}</div>
-      <div class="metadata-label">Case Status/Stage:</div>
-      <div>Pending for hearing</div>
+      <div class="metadata-label">Current Stage:</div>
+      <div>Pending for Arguments/Evidence</div>
     </div>
   </div>
 
   <hr class="divider" />
 
   <div class="subject-title">
-    TRANSFER PETITION UNDER SECTION 186A OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 FOR TRANSFER OF CASE REGARDING: {{subject}}
+    TRANSFER PETITION UNDER ARTICLE 186A OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 FOR TRANSFER OF CASE REGARDING: {{subject}}
   </div>
 
-  <div class="section-title">Respectfully Sheweth:</div>
+  <div class="salutation">
+    RESPECTFULLY SHEWETH:
+  </div>
+
   <ol class="statement-list">
     {{facts}}
   </ol>
 
-  <div class="section-title">Grounds for Transfer:</div>
-  <ol class="statement-list">
+  <div class="section-title">GROUNDS FOR TRANSFER:</div>
+  <ol class="statement-list" type="A">
     {{grounds}}
   </ol>
 
   <div class="section-title">PRAYER:</div>
   <div class="prayer-body">
-    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to transfer the pending case from the source High Court to the target jurisdiction in the interest of justice and fair trial. Any other relief that this Honorable Court deems fit may also be awarded.
+    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to transfer the pending case from the source High Court to the target jurisdiction in the interest of justice and fair trial.
   </div>
 
   <div class="footer-block">
@@ -208,8 +235,15 @@
     <div class="counsel-signature">
       <div>Through:</div>
       <div class="counsel-name">{{advocate}}</div>
-      <div style="font-size: 13px; color: #555555;">Advocate-on-Record (AOR)</div>
+      <div style="font-size: 12pt;">Advocate-on-Record (AOR)</div>
     </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to the best of my personal knowledge and belief.
+    </p>
   </div>
 
 </body>

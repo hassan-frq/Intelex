@@ -5,13 +5,15 @@ export async function generateDocument(req, res) {
     const { 
       transcript, 
       caseId, 
+      courtId,
       documentTypeId, 
       petitioner, 
       respondent, 
       caseNumber, 
       advocate, 
       draftDate,
-      subject 
+      subject,
+      extraMetadata
     } = req.body;
 
     if (!transcript || !transcript.trim()) {
@@ -23,13 +25,15 @@ export async function generateDocument(req, res) {
     }
 
     const metadata = {
+      courtId,
       documentTypeId: documentTypeId || "petition",
       petitioner,
       respondent,
       caseNumber,
       advocate,
       draftDate,
-      subject
+      subject,
+      extraMetadata: extraMetadata || {}
     };
 
     console.log(`Drafting legal document of type: ${metadata.documentTypeId} for Petitioner: ${metadata.petitioner}`);

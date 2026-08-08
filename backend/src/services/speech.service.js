@@ -1,6 +1,6 @@
-export async function transcribeWithGroq(audioBuffer, originalFilename) {
+export async function transcribeWithGroq(audioBuffer, originalFilename, mimetype) {
   const formData = new FormData();
-  const audioBlob = new Blob([audioBuffer]);
+  const audioBlob = new Blob([audioBuffer], { type: mimetype || "audio/webm" });
 
   formData.append("file", audioBlob, originalFilename || "audio.webm");
   formData.append("model", "whisper-large-v3-turbo");

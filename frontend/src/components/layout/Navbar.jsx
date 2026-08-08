@@ -12,9 +12,7 @@ function Navbar() {
 
   let title = pageTitles[location.pathname];
 
-  if (location.pathname.includes("/speech")) {
-    title = "Speech to Text";
-  } else if (location.pathname.includes("/previous-cases")) {
+  if (location.pathname.includes("/previous-cases")) {
     title = "Previous Cases";
   } else if (location.pathname.includes("/generate")) {
     title = "Generate Document";

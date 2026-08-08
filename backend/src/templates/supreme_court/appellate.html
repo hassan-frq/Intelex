@@ -6,39 +6,48 @@
   <style>
     @page {
       size: A4;
-      margin: 1.2in 1in 1.2in 1.5in;
+      margin: 1.0in 1.0in 1.0in 1.5in; /* 1.5in Left margin mandatory for binding spine */
     }
     body {
-      font-family: "Times New Roman", Georgia, serif;
-      font-size: 15px;
-      line-height: 2;
-      color: #111111;
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
       margin: 0;
       padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
     }
     .court-header {
       text-align: center;
       font-weight: bold;
-      font-size: 18px;
+      font-size: 16pt;
       text-transform: uppercase;
-      margin-bottom: 30px;
-      letter-spacing: 0.5px;
+      margin-bottom: 5px;
     }
     .court-jurisdiction {
       text-align: center;
-      font-style: italic;
-      font-size: 14px;
-      margin-top: -25px;
-      margin-bottom: 35px;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .case-number {
       text-align: right;
       font-weight: bold;
-      margin-bottom: 40px;
-      font-size: 16px;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
     }
     .party-block {
-      margin-bottom: 30px;
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
     }
     .party-row {
       display: flex;
@@ -47,86 +56,85 @@
       margin-bottom: 10px;
     }
     .party-name {
-      font-weight: bold;
       max-width: 75%;
     }
     .party-role {
-      font-style: italic;
       white-space: nowrap;
     }
     .versus-row {
       text-align: center;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 20px 0;
-      letter-spacing: 1px;
-    }
-    .divider {
-      border: 0;
-      border-top: 1.5px solid #000000;
-      margin: 30px 0;
+      margin: 15px 0;
     }
     .metadata-box {
-      border: 2px solid #000000;
-      padding: 15px;
-      margin: 25px 0;
-      background-color: #fafafa;
-      font-size: 14px;
-      line-height: 1.8;
-      font-family: "Times New Roman", Georgia, serif;
+      border: 1.5pt solid #000000;
+      padding: 12pt;
+      margin: 20px 0;
+      font-size: 14pt;
+      line-height: 1.5;
+      background-color: #ffffff;
     }
     .metadata-title {
       font-weight: bold;
       text-transform: uppercase;
       text-align: center;
       margin-bottom: 10px;
-      border-bottom: 1.5px solid #000000;
+      border-bottom: 1.5pt solid #000000;
       padding-bottom: 5px;
+      font-size: 14pt;
     }
     .metadata-grid {
       display: grid;
-      grid-template-columns: 2fr 3fr;
-      gap: 10px;
+      grid-template-columns: 2.2fr 3fr;
+      gap: 8px;
     }
     .metadata-label {
       font-weight: bold;
     }
+    .divider {
+      border: 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
+    }
     .subject-title {
       text-align: center;
       font-weight: bold;
-      text-decoration: underline;
       text-transform: uppercase;
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 40px;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
     }
     .section-title {
       font-weight: bold;
+      font-size: 14pt;
       text-transform: uppercase;
-      margin-top: 35px;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
+      margin-top: 25px;
+      margin-bottom: 10px;
     }
     .statement-list {
       margin-left: 0;
-      padding-left: 25px;
+      padding-left: 0.5in;
       text-align: justify;
     }
     .statement-list li {
-      margin-bottom: 20px;
-      padding-left: 10px;
+      margin-bottom: 12pt;
+      padding-left: 5pt;
     }
     .prayer-body {
-      font-style: italic;
       text-align: justify;
-      padding-left: 15px;
-      margin-bottom: 50px;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
     }
     .footer-block {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 60px;
+      margin-top: 40px;
       page-break-inside: avoid;
     }
     .counsel-signature {
@@ -135,6 +143,21 @@
     .counsel-name {
       font-weight: bold;
       margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -148,7 +171,7 @@
   </div>
 
   <div class="case-number">
-    Civil Petition for Leave to Appeal No. {{caseNumber}}
+    Civil Petition for Leave to Appeal No. ________ / 2026
   </div>
 
   <div class="party-block">
@@ -167,37 +190,47 @@
     </div>
   </div>
 
+  <!-- Impugned Order Details Block (SC Rules Page 5 Item 3) -->
   <div class="metadata-box">
-    <div class="metadata-title">Details of Challenge</div>
+    <div class="metadata-title">Details of Impugned Order</div>
     <div class="metadata-grid">
       <div class="metadata-label">Challenged (Impugned) Court:</div>
       <div>{{impugnedCourt}}</div>
-      <div class="metadata-label">Date of Challenged Judgment:</div>
+      <div class="metadata-label">Date of Impugned Judgment:</div>
       <div>{{impugnedOrderDate}}</div>
       <div class="metadata-label">High Court Case Number:</div>
-      <div>{{caseNumber}}</div>
+      <div>________ / 2026</div>
     </div>
   </div>
 
   <hr class="divider" />
 
   <div class="subject-title">
-    PETITION UNDER ARTICLE 185(3) OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 FOR LEAVE TO APPEAL IN REGARD TO: {{subject}}
+    PETITION UNDER ARTICLE 185(3) OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973 FOR LEAVE TO APPEAL REGARDING: {{subject}}
   </div>
 
-  <div class="section-title">Respectfully Sheweth:</div>
+  <div class="salutation">
+    RESPECTFULLY SHEWETH:
+  </div>
+
   <ol class="statement-list">
     {{facts}}
   </ol>
 
+  <!-- Appellate Specific Questions of Law Section (SC Rules Page 5 Item 5) -->
   <div class="section-title">Questions of Law:</div>
   <ol class="statement-list">
     {{questionsOfLaw}}
   </ol>
 
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="A">
+    {{grounds}}
+  </ol>
+
   <div class="section-title">PRAYER:</div>
   <div class="prayer-body">
-    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to grant leave to appeal against the impugned judgment of the High Court, set aside the challenged decree/order, and grant recovery/relief to the petitioner as requested. Any other relief that this Honorable Court deems fit may also be awarded.
+    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to grant leave to appeal against the impugned judgment of the High Court, set aside the challenged decree/order, and grant final relief to the Petitioner. Any interim relief or stay deemed appropriate may also be awarded.
   </div>
 
   <div class="footer-block">
@@ -208,7 +241,35 @@
     <div class="counsel-signature">
       <div>Through:</div>
       <div class="counsel-name">{{advocate}}</div>
-      <div style="font-size: 13px; color: #555555;">Advocate-on-Record (AOR)</div>
+      <div style="font-size: 12pt;">Advocate-on-Record (AOR)</div>
+      <div style="font-size: 11pt;">Supreme Court of Pakistan</div>
+    </div>
+  </div>
+
+  <!-- Verification on Oath -->
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to my personal knowledge, and the rest are true to my information and belief.
+    </p>
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        ADVOCATE-ON-RECORD
+      </div>
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        DEPONENT / PETITIONER
+      </div>
+    </div>
+  </div>
+
+  <!-- Mandatory Non-Pendency Certificate (SC Rules Page 6 Item 9) -->
+  <div class="legal-block" style="margin-top: 20px;">
+    <div class="block-title">Non-Pendency Certificate</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Certified that no other petition for leave to appeal or proceedings on the subject matter between the parties has been filed or is pending before this Honorable Supreme Court of Pakistan.
+    </p>
+    <div style="text-align: right; margin-top: 30px;">
+      <span style="font-weight: bold;">ADVOCATE-ON-RECORD (AOR)</span>
     </div>
   </div>
 

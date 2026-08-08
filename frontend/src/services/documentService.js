@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import api from "./api";
 
 /**
  * @param {object} metadata - Case fields (petitioner, respondent, subject, etc.)
@@ -8,14 +6,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000
  * @returns {Promise<string>} - Compiled HTML content
  */
 export async function generateDocument(metadata, transcript) {
-  const response = await axios.post(
-    `${API_BASE_URL}/api/document/generate`,
+  const response = await api.post(
+    "/api/document/generate",
     {
       transcript,
       ...metadata
-    },
-    {
-      headers: { "Content-Type": "application/json" }
     }
   );
 
@@ -24,4 +19,33 @@ export async function generateDocument(metadata, transcript) {
   }
   
   throw new Error("Invalid response format received from document generator.");
+}
+
+/**
+ * Calls backend references search API (keyword extraction + Google Scholar search)
+ * @param {string} courtId 
+ * @param {string} transcript 
+ * @returns {Promise<{keywords: string[], results: Array}>}
+ */
+export async function searchReferences(courtId, transcript) {
+  const response = await api.post(
+    "/api/document/search-references",
+    { courtId, transcript }
+  );
+  return response.data;
+}
+
+/**
+ * Calls backend document generation endpoint with curation references list
+ * @param {object} metadata 
+ * @param {string} transcript 
+ * @param {Array} selectedReferences 
+ * @returns {Promise<string>} Compiled HTML
+ */
+export async function generateWithCitations(metadata, transcript, selectedReferences) {
+  const response = await api.post(
+    "/api/document/generate-with-citations",
+    { metadata, transcript, selectedReferences }
+  );
+  return response.data.htmlContent;
 }

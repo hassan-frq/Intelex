@@ -7,11 +7,12 @@ import keywordsRoutes from "./routes/keywords.routes.js";
 import documentRoutes from "./routes/document.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import caseRoutes from "./routes/case.routes.js";
-import documentRoutes from "./routes/document.routes.js";
+import dotenv from "dotenv";
+
 
 dotenv.config();
 const app = express();
-
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 app.use(
   cors({
     origin: [

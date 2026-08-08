@@ -14,7 +14,7 @@ import {
   FiSquare
 } from "react-icons/fi";
 import { transcribeAudio } from "../../services/speechService";
-import { generateDocument } from "../../services/documentService";
+import { generateDocument, searchReferences, generateWithCitations } from "../../services/documentService";
 import html2pdf from "html2pdf.js";
 
 const COURTS = [
@@ -198,6 +198,10 @@ const DYNAMIC_FIELDS_CONFIG = {
 function DocumentGenerator() {
   
   const [step, setStep] = useState("config");
+  const [loadingPhase, setLoadingPhase] = useState("searching"); // 'searching' | 'drafting'
+  const [extractedKeywords, setExtractedKeywords] = useState([]);
+  const [scrapedPrecedents, setScrapedPrecedents] = useState([]);
+  const [selectedPrecedentIndices, setSelectedPrecedentIndices] = useState({}); // { 0: true, 1: true }
   
   const [selectedCourtId, setSelectedCourtId] = useState(COURTS[0].id);
   const [selectedDocTypeId, setSelectedDocTypeId] = useState(COURT_DOCUMENT_TYPES[COURTS[0].id][0].id);
@@ -242,13 +246,24 @@ function DocumentGenerator() {
 
   // Generation loading states
   const [loadingStageIndex, setLoadingStageIndex] = useState(0);
-  const loadingStages = [
-    "Analyzing case metadata...",
-    "Sending request to Llama legal engine...",
-    "Formatting document layout to  court conventions...",
-    "Injecting petitioner and respondent signatures...",
-    "Finalizing document preview..."
+  
+  const searchingStages = [
+    "Analyzing case details and metadata...",
+    "Invoking legal keyword extraction...",
+    "Warming up Google Scholar session...",
+    "Querying precedents for the target court...",
+    "Parsing case links, snippets, and citations..."
   ];
+
+  const draftingStages = [
+    "Crawling full text pages of selected cases...",
+    "Filtering excerpts using Llama pre-filter...",
+    "Injecting case-law citations into Groq prompt...",
+    "Drafting formal facts, grounds, and prayers...",
+    "Compiling document into clean court formats..."
+  ];
+
+  const currentLoadingStages = loadingPhase === "searching" ? searchingStages : draftingStages;
 
   //  Text Editor editable state
   const [editableContent, setEditableContent] = useState("");
@@ -373,16 +388,107 @@ function DocumentGenerator() {
     showToast("Dictation stopped. Finalizing transcription...");
   };
 
-  // Handle Document Generation Trigger
-  const handleGenerate = async (e) => {
+  // Phase 1: Search references and keywords
+  const handleStartSearch = async (e) => {
     e.preventDefault();
     setStep("generating");
+    setLoadingPhase("searching");
     setLoadingStageIndex(0);
 
-    
     const loadingTimer = setInterval(() => {
       setLoadingStageIndex(prev => {
-        if (prev < loadingStages.length - 1) return prev + 1;
+        if (prev < searchingStages.length - 1) return prev + 1;
+        return prev;
+      });
+    }, 2000);
+
+    try {
+      console.log("Starting reference search...");
+      const data = await searchReferences(selectedCourtId, subject);
+      clearInterval(loadingTimer);
+
+      setExtractedKeywords(data.keywords || []);
+      setScrapedPrecedents(data.results || []);
+
+      // Auto-select the first 3 precedents if available
+      const initialSelections = {};
+      if (data.results && Array.isArray(data.results)) {
+        data.results.forEach((_, idx) => {
+          if (idx < 3) {
+            initialSelections[idx] = true;
+          }
+        });
+      }
+      setSelectedPrecedentIndices(initialSelections);
+
+      if (!data.results || data.results.length === 0) {
+        showToast("No relevant precedents found on Google Scholar. Proceeding with standard draft.");
+        // If no results are found, go straight to drafting without references
+        await handleDraftDirectly(subject);
+      } else {
+        setStep("curation");
+        showToast("Google Scholar case search completed successfully!");
+      }
+    } catch (err) {
+      clearInterval(loadingTimer);
+      console.error("Reference search failed:", err);
+      showToast("Searching references failed or timed out. Proceeding to draft directly.");
+      await handleDraftDirectly(subject);
+    }
+  };
+
+  // Phase 2: Generate draft document using user-selected citations
+  const handleDraftWithCitations = async () => {
+    setStep("generating");
+    setLoadingPhase("drafting");
+    setLoadingStageIndex(0);
+
+    const loadingTimer = setInterval(() => {
+      setLoadingStageIndex(prev => {
+        if (prev < draftingStages.length - 1) return prev + 1;
+        return prev;
+      });
+    }, 2500);
+
+    try {
+      const selectedList = scrapedPrecedents.filter((_, idx) => selectedPrecedentIndices[idx]);
+      const metadata = {
+        caseId: 1,
+        courtId: selectedCourtId,
+        documentTypeId: selectedDocTypeId,
+        petitioner,
+        respondent,
+        caseNumber,
+        advocate,
+        draftDate,
+        subject,
+        extraMetadata
+      };
+
+      console.log(`Generating draft with ${selectedList.length} references...`);
+      const htmlContent = await generateWithCitations(metadata, subject, selectedList);
+      
+      clearInterval(loadingTimer);
+      setEditableContent(htmlContent);
+      setStep("editor");
+      showToast("Legal document drafted successfully with citations.");
+    } catch (err) {
+      clearInterval(loadingTimer);
+      console.error("Generation with citations failed:", err);
+      showToast("Failed to compile with citations. Attempting fallback generation...");
+      await handleDraftDirectly(subject);
+    }
+  };
+
+  // Fallback / Direct Drafting without references
+  const handleDraftDirectly = async (inputSubject) => {
+    setStep("generating");
+    setLoadingPhase("drafting");
+    setLoadingStageIndex(0);
+
+    const loadingTimer = setInterval(() => {
+      setLoadingStageIndex(prev => {
+        if (prev < draftingStages.length - 1) return prev + 1;
         return prev;
       });
     }, 1500);
@@ -397,20 +503,19 @@ function DocumentGenerator() {
         caseNumber,
         advocate,
         draftDate,
-        subject,
+        subject: inputSubject || subject,
         extraMetadata
       };
 
-      
-      const htmlContent = await generateDocument(metadata, subject);
+      const htmlContent = await generateDocument(metadata, inputSubject || subject);
       
       clearInterval(loadingTimer);
       setEditableContent(htmlContent);
       setStep("editor");
-      showToast("Legal document drafted successfully from transcription.");
+      showToast("Document generated successfully.");
     } catch (err) {
       clearInterval(loadingTimer);
-      console.error("Compilation failed:", err);
+      console.error("Direct compilation failed:", err);
       setStep("config");
       showToast(`Error compiling document: ${err.response?.data?.error || err.message}`);
     }
@@ -495,7 +600,7 @@ function DocumentGenerator() {
 
       {step === "config" && (
         <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleGenerate} className="space-y-6 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+          <form onSubmit={handleStartSearch} className="space-y-6 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
             
             {/* Section 1: Court Selection */}
             <div>
@@ -744,6 +849,141 @@ function DocumentGenerator() {
         </div>
       )}
 
+      {step === "curation" && (
+        <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl space-y-6">
+            
+            {/* Header info */}
+            <div className="border-b border-zinc-800 pb-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <FiBookOpen className="text-blue-500" /> Precedent Case Law Curation
+              </h2>
+              <p className="text-xs text-zinc-450 mt-1">
+                Select which precedents should be passed as citations to guide the LLM's legal facts and grounds drafting.
+              </p>
+            </div>
+
+            {/* Keyword tags */}
+            {extractedKeywords.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-zinc-450 uppercase tracking-wide">
+                  Extracted Legal Keywords
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {extractedKeywords.map((kw, i) => (
+                    <span key={i} className="inline-flex items-center rounded-lg bg-blue-600/10 border border-blue-500/20 px-2.5 py-1 text-xs font-medium text-blue-400">
+                      {kw}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Precedents checklist */}
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold text-zinc-450 uppercase tracking-wide">
+                Google Scholar Precedents
+              </label>
+
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                {scrapedPrecedents.map((ref, idx) => {
+                  const isSelected = !!selectedPrecedentIndices[idx];
+                  return (
+                    <div 
+                      key={idx}
+                      onClick={() => {
+                        setSelectedPrecedentIndices(prev => ({
+                          ...prev,
+                          [idx]: !prev[idx]
+                        }));
+                      }}
+                      className={`group flex items-start gap-4 rounded-xl border p-4 text-left transition duration-150 cursor-pointer ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-600/5 text-white"
+                          : "border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-705 hover:bg-zinc-900"
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <div className="flex h-5 items-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          readOnly
+                          className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-blue-600 focus:ring-blue-500 focus:ring-offset-zinc-900 transition"
+                        />
+                      </div>
+
+                      {/* Case details */}
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="font-semibold text-sm text-zinc-200 group-hover:text-white transition">
+                            {ref.title}
+                          </span>
+                          {ref.link && (
+                            <a 
+                              href={ref.link} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs text-blue-500 hover:underline inline-flex items-center gap-0.5"
+                            >
+                              Source <FiFile className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center gap-3 text-xs text-zinc-500">
+                          <span>{ref.court}</span>
+                          {ref.citedBy && (
+                            <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400 font-medium">
+                              Cited by {ref.citedBy}
+                            </span>
+                          )}
+                        </div>
+
+                        {ref.snippet && (
+                          <p className="text-xs text-zinc-500 leading-relaxed italic bg-zinc-950/20 p-2 rounded border border-zinc-900">
+                            {ref.snippet}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Stepper Wizard Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 border-t border-zinc-800 pt-4">
+              <button
+                type="button"
+                onClick={() => setStep("config")}
+                className="flex-1 rounded-xl border border-zinc-700 bg-zinc-850 px-5 py-3.5 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-700 hover:text-white focus:outline-none"
+              >
+                Back to Setup
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDraftDirectly(subject)}
+                className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-5 py-3.5 text-sm font-semibold text-zinc-450 transition hover:bg-zinc-900 hover:text-zinc-200 focus:outline-none"
+              >
+                Skip Citations
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDraftWithCitations}
+                className="flex-[2] rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 shadow-lg shadow-blue-600/10 focus:outline-none flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FiCheck className="h-4 w-4" /> Compile with Citations
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
       {step === "generating" && (
         <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
           <div className="relative flex h-20 w-20 items-center justify-center">
@@ -753,25 +993,25 @@ function DocumentGenerator() {
           </div>
           
           <h2 className="mt-8 text-xl font-semibold text-white">
-            Generating Legal Document
+            {loadingPhase === "searching" ? "Searching Case Law Precedents" : "Generating Legal Document"}
           </h2>
           
           <div className="mt-3 w-full max-w-md bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-zinc-800">
             <div 
               className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out" 
-              style={{ width: `${((loadingStageIndex + 1) / loadingStages.length) * 100}%` }}
+              style={{ width: `${((loadingStageIndex + 1) / currentLoadingStages.length) * 100}%` }}
             />
           </div>
 
           {/* Progressive message stages */}
           <div className="mt-6 h-8 text-center">
             <p className="text-sm font-medium text-zinc-400 animate-fade-in">
-              {loadingStages[loadingStageIndex]}
+              {currentLoadingStages[loadingStageIndex]}
             </p>
           </div>
           
           <p className="mt-2 text-xs text-zinc-650">
-            Querying Groq Llama models and compile engine...
+            {loadingPhase === "searching" ? "Scanning Google Scholar session..." : "Querying Groq Llama models and compile engine..."}
           </p>
         </div>
       )}

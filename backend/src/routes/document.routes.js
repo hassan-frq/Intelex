@@ -6,12 +6,17 @@ import {
   uploadCaseDocument,
   downloadCaseDocument,
   deleteCaseDocument,
+  generateDocument,
+  searchReferences,
+  generateWithCitations,
 } from "../controllers/document.controller.js";
 
-import { generateDocument } from "../controllers/document.controller.js";
 const router = Router();
 // Document generation route
 router.post("/generate", generateDocument);
+router.post("/document/generate", generateDocument); // alias route for frontend compatibility
+router.post("/document/search-references", searchReferences);
+router.post("/document/generate-with-citations", generateWithCitations);
 
 // Nested under /api/cases/:caseId/documents
 router.get("/cases/:caseId/documents", getCaseDocuments);

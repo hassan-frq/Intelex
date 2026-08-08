@@ -9,7 +9,7 @@ if (!connectionString) {
 }
 
 const sql = postgres(connectionString, {
-  ssl: "require",
+  ssl: { rejectUnauthorized: false },
 });
 
 export default sql;

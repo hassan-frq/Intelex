@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import AuthLayout from "../layouts/AuthLayout";
+import ProtectedRoute from "./ProtectedRoutes";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import CaseBook from "../pages/CaseBook/CaseBook";
@@ -9,87 +10,27 @@ import PreviousCases from "../pages/PreviousCases/PreviousCases";
 import DocumentGenerator from "../pages/DocumentGenerator/DocumentGenerator";
 import Preview from "../pages/Preview/Preview";
 import Settings from "../pages/Settings/Settings";
+import Register from "../pages/Register/Register";
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Authentication */}
-        <Route
-            path="/"
-            element={
-                <AuthLayout>
-                    <Login />
-                </AuthLayout>
-            }
-        />
-
-        <Route
-            path="/login"
-            element={
-                <AuthLayout>
-                    <Login />
-                </AuthLayout>
-            }
-        />
-
-        {/* Main Application */}
-        <Route
-            path="/dashboard"
-            element={
-                <MainLayout>
-                    <Dashboard />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/cases"
-            element={
-                <MainLayout>
-                    <CaseBook />
-                </MainLayout>
-            }
-        />
 
 
+        <Route path="/" element={<AuthLayout><Login /></AuthLayout>} />
+        <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+        <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+        
+        <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
+        <Route path="/cases" element={<ProtectedRoute><MainLayout><CaseBook /></MainLayout></ProtectedRoute>} />
+        
+        <Route path="/case/:id/previous-cases" element={<ProtectedRoute><MainLayout><PreviousCases /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/generate" element={<ProtectedRoute><MainLayout><DocumentGenerator /></MainLayout></ProtectedRoute>} />
+        <Route path="/case/:id/preview" element={<ProtectedRoute><MainLayout><Preview /></MainLayout></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
+      </Routes>
 
-        <Route
-            path="/case/:id/previous-cases"
-            element={
-                <MainLayout>
-                    <PreviousCases />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/generate"
-            element={
-                <MainLayout>
-                    <DocumentGenerator />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/case/:id/preview"
-            element={
-                <MainLayout>
-                    <Preview />
-                </MainLayout>
-            }
-        />
-
-        <Route
-            path="/settings"
-            element={
-                <MainLayout>
-                    <Settings />
-                </MainLayout>
-            }
-        />
-    </Routes>
     </BrowserRouter>
   );
 }

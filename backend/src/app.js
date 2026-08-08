@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import speechRoutes from "./routes/speech.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import { requireAuth } from "./middleware/auth.middleware.js";
 import keywordsRoutes from "./routes/keywords.routes.js";
+import documentRoutes from "./routes/document.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import caseRoutes from "./routes/case.routes.js";
 import documentRoutes from "./routes/document.routes.js";
 
 dotenv.config();
-
 const app = express();
 
 app.use(
@@ -21,18 +24,24 @@ app.use(
 );
 app.use(express.json());
 
+
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
 
-// Health check — quick way to confirm the server's alive
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/speech", speechRoutes);
-app.use("/api/keywords", keywordsRoutes);
-app.use("/api/document", documentRoutes);
+
+app.use("/api/auth", authRoutes);
+app.use("/api/speech", requireAuth, speechRoutes);
+app.use("/api/keywords", requireAuth, keywordsRoutes);
+app.use("/api/users", requireAuth, userRoutes);
+app.use("/api/cases", requireAuth, caseRoutes);
+app.use("/api", requireAuth, documentRoutes);
+
 
 export default app;

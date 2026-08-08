@@ -1,3 +1,4 @@
+
 import { extractKeywordsWithGroq } from "../services/keywords.service.js";
 
 /**
@@ -6,12 +7,12 @@ import { extractKeywordsWithGroq } from "../services/keywords.service.js";
 export async function extractKeywords(req, res) {
   try {
     const { transcript } = req.body;
-
     if (!transcript || typeof transcript !== "string") {
       return res.status(400).json({ error: "Missing or invalid transcript in request body." });
     }
 
     const keywords = await extractKeywordsWithGroq(transcript);
+
 
     res.json({ keywords });
   } catch (err) {

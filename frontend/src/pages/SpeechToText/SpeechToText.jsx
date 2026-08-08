@@ -17,6 +17,8 @@ function SpeechToText() {
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
   const isRecordingRef = useRef(false);
+  const fullRecorderRef = useRef(null);
+  const fullChunksRef = useRef([]);
 
   const startRecording = async () => {
     setError("");
@@ -29,6 +31,20 @@ function SpeechToText() {
       isRecordingRef.current = true;
       setIsRecording(true);
 
+      // Full recorder — runs start to finish, produces one clean complete blob
+      fullChunksRef.current = [];
+      const fullRecorder = new MediaRecorder(stream);
+      fullRecorderRef.current = fullRecorder;
+
+      fullRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          fullChunksRef.current.push(event.data);
+        }
+      };
+
+      fullRecorder.start();
+
+      // Chunked recorder — fires every 5s for live feel
       recordChunk(stream);
     } catch (err) {
       setError("Microphone access was denied or unavailable.");
@@ -73,8 +89,19 @@ function SpeechToText() {
   const stopRecording = () => {
     isRecordingRef.current = false;
     setIsRecording(false);
+
+    // Stop chunked recorder
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
+    }
+
+    // Stop full recorder and transcribe the complete audio
+    if (fullRecorderRef.current && fullRecorderRef.current.state !== "inactive") {
+      fullRecorderRef.current.onstop = async () => {
+        const fullBlob = new Blob(fullChunksRef.current, { type: "audio/webm" });
+        await transcribeFullAudio(fullBlob);
+      };
+      fullRecorderRef.current.stop();
     }
   };
 
@@ -86,6 +113,20 @@ function SpeechToText() {
       setTranscript((prev) => prev + " " + text);
     } catch (err) {
       setError("Transcription failed. Check the console for details.");
+      console.error(err);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const transcribeFullAudio = async (audioBlob) => {
+    setIsTranscribing(true);
+
+    try {
+      const text = await transcribeAudioService(audioBlob);
+      setTranscript(text);
+    } catch (err) {
+      setError("Full transcription failed. Check the console for details.");
       console.error(err);
     } finally {
       setIsTranscribing(false);
@@ -120,7 +161,16 @@ function SpeechToText() {
       {transcript && (
         <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-4 shadow-lg shadow-black/20">
           <p className="text-sm text-zinc-400 mb-2 font-medium">Transcript:</p>
-          <p className="text-white leading-relaxed">{transcript}</p>
+          <textarea
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            readOnly={isRecording}
+            rows={6}
+            className="w-full bg-zinc-800 text-white rounded-xl border border-zinc-700 p-3 leading-relaxed resize-none focus:outline-none focus:border-blue-500 scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-600 hover:scrollbar-thumb-zinc-500"
+          />
+          {!isRecording && (
+            <p className="text-xs text-zinc-500 mt-2">You can edit the transcript before extracting keywords.</p>
+          )}
         </div>
       )}
 

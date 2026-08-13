@@ -25,7 +25,7 @@ Project documentation is available in the `docs/` directory.
 - Backend Architecture (`Backend_Architecture.md`)
 - API Contracts (`API_Contracts.md`)
 - Frontend Design (`Frontend_Design.md`)
-- UI Guidelines (`ui_guidelines.md`)
+- UI Design Guidelines (`Design_Specifications.md`)
 - Task Allocation (`Task_Allocation.md`)
 
 ---

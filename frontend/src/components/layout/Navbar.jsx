@@ -50,8 +50,7 @@ function Navbar() {
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[13px] transition"
-          style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#8a9baa" }}
+          className="flex items-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] px-3 py-1.5 text-[13px] text-[#8a9baa] transition hover:border-[rgba(224,85,85,0.3)] hover:text-[#e05555]"
           title="Log out"
         >
           <FiLogOut size={14} />

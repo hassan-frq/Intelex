@@ -45,7 +45,9 @@ function Sidebar() {
             to={link.path}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-[9px] text-[13px] transition border ${
-                isActive ? "font-medium" : "border-transparent"
+                isActive
+                  ? "font-medium"
+                  : "border-transparent text-[#8a9baa] hover:bg-[#162030] hover:text-[#e8e0d0]"
               }`
             }
             style={({ isActive }) =>
@@ -55,7 +57,7 @@ function Sidebar() {
                     backgroundColor: "rgba(201, 168, 76, 0.12)",
                     borderColor: "rgba(201, 168, 76, 0.2)",
                   }
-                : { color: "#8a9baa" }
+                : undefined
             }
           >
             {link.icon}

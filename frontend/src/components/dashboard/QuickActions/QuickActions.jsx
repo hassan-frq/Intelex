@@ -44,20 +44,11 @@ function QuickActions() {
           <button
             key={action.title}
             onClick={action.onClick}
-            className="flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[13px] font-medium transition"
-            style={
+            className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[13px] font-medium transition ${
               action.variant === "primary"
-                ? {
-                    backgroundColor: "rgba(201, 168, 76, 0.08)",
-                    borderColor: "rgba(201, 168, 76, 0.2)",
-                    color: "#c9a84c",
-                  }
-                : {
-                    backgroundColor: "#162030",
-                    borderColor: "#1e2d3d",
-                    color: "#8a9baa",
-                  }
-            }
+                ? "border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.14)] hover:border-[rgba(201,168,76,0.35)]"
+                : "border-[#1e2d3d] bg-[#162030] text-[#8a9baa] hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
+            }`}
           >
             {action.icon}
             {action.title}

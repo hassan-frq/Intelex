@@ -184,12 +184,7 @@ function CaseBook() {
           </p>
           <button
             onClick={openCreateModal}
-            className="mx-auto mt-5 flex items-center gap-2 rounded-lg border px-4 py-2 text-[13px] font-medium transition"
-            style={{
-              backgroundColor: "rgba(201, 168, 76, 0.08)",
-              borderColor: "rgba(201, 168, 76, 0.2)",
-              color: "#c9a84c",
-            }}
+            className="mx-auto mt-5 flex items-center gap-2 rounded-lg border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)] px-4 py-2 text-[13px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.14)] hover:border-[rgba(201,168,76,0.35)]"
           >
             <FiPlus size={15} /> New Case
           </button>
@@ -199,8 +194,8 @@ function CaseBook() {
           {cases.map((caseItem) => (
             <div
               key={caseItem.id}
-              className="rounded-xl border p-5 transition"
-              style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
+              className="rounded-xl border border-[#1e2d3d] p-5 transition hover:border-[rgba(201,168,76,0.25)]"
+              style={{ backgroundColor: "#111c27" }}
             >
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-[15px] font-semibold" style={{ color: "#e8e0d0" }}>
@@ -242,16 +237,14 @@ function CaseBook() {
               <div className="mt-5 flex gap-2 border-t pt-4" style={{ borderColor: "#1e2d3d" }}>
                 <button
                   onClick={() => openEditModal(caseItem)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-2 text-[12px] font-medium transition"
-                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#8a9baa" }}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] py-2 text-[12px] font-medium text-[#8a9baa] transition hover:border-[rgba(201,168,76,0.3)] hover:text-[#e8e0d0]"
                 >
                   <FiEdit2 size={13} /> Edit
                 </button>
                 <button
                   onClick={() => handleDelete(caseItem.id)}
                   disabled={deletingId === caseItem.id}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-2 text-[12px] font-medium transition disabled:opacity-50"
-                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#e05555" }}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] py-2 text-[12px] font-medium text-[#e05555] transition hover:border-[rgba(224,85,85,0.35)] disabled:opacity-50"
                 >
                   <FiTrash2 size={13} />
                   {deletingId === caseItem.id ? "Deleting..." : "Delete"}
@@ -401,20 +394,14 @@ function CaseBook() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 rounded-lg border py-2.5 text-[13px] font-medium transition"
-                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#8a9baa" }}
+                  className="flex-1 rounded-lg border border-[#1e2d3d] bg-[#162030] py-2.5 text-[13px] font-medium text-[#8a9baa] transition hover:border-[rgba(201,168,76,0.3)] hover:text-[#e8e0d0]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 rounded-lg border py-2.5 text-[13px] font-medium transition disabled:opacity-60"
-                  style={{
-                    backgroundColor: "rgba(201, 168, 76, 0.08)",
-                    borderColor: "rgba(201, 168, 76, 0.2)",
-                    color: "#c9a84c",
-                  }}
+                  className="flex-1 rounded-lg border border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)] py-2.5 text-[13px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.14)] hover:border-[rgba(201,168,76,0.35)] disabled:opacity-60"
                 >
                   {submitting
                     ? "Saving..."

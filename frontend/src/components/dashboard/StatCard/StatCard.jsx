@@ -1,8 +1,8 @@
 function StatCard({ title, value, icon }) {
   return (
     <div
-      className="rounded-xl border p-5"
-      style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
+      className="rounded-xl border border-[#1e2d3d] p-5 transition hover:border-[rgba(201,168,76,0.3)]"
+      style={{ backgroundColor: "#111c27" }}
     >
       <div className="flex items-center justify-between">
         <span

@@ -6,10 +6,6 @@ import {
   updateCase,
   deleteCase,
 } from "../../services/caseService";
-import Button from "../../components/common/Button/Button";
-import Input from "../../components/common/Input/Input";
-import Modal from "../../components/common/Modal/Modal";
-import Loader from "../../components/common/Loader/Loader";
 import CaseDocuments from "./CaseDocuments";
 
 const STATUS_OPTIONS = [
@@ -19,9 +15,21 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_STYLES = {
-  open: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-  in_progress: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  closed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  open: {
+    backgroundColor: "rgba(201, 168, 76, 0.08)",
+    borderColor: "rgba(201, 168, 76, 0.2)",
+    color: "#c9a84c",
+  },
+  in_progress: {
+    backgroundColor: "#162030",
+    borderColor: "#1e2d3d",
+    color: "#8a9baa",
+  },
+  closed: {
+    backgroundColor: "rgba(76, 175, 130, 0.08)",
+    borderColor: "rgba(76, 175, 130, 0.3)",
+    color: "#4caf82",
+  },
 };
 
 const EMPTY_FORM = {
@@ -33,6 +41,15 @@ const EMPTY_FORM = {
   description: "",
   date: "",
 };
+
+const inputStyle = {
+  backgroundColor: "#0a1420",
+  borderColor: "#1e2d3d",
+  color: "#8a9baa",
+};
+
+const labelClass =
+  "mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em]";
 
 function CaseBook() {
   const [cases, setCases] = useState([]);
@@ -135,28 +152,46 @@ function CaseBook() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">Case Book</h1>
-        <p className="mt-2 whitespace-nowrap text-zinc-400">
+    <div className="space-y-4">
+      <div className="mb-3">
+        <span
+          className="text-[10px] font-medium uppercase tracking-[0.15em]"
+          style={{ color: "#c9a84c" }}
+        >
+          Case Law
+        </span>
+        <h1 className="mt-1 text-[22px] font-semibold" style={{ color: "#e8e0d0" }}>
+          Case Book
+        </h1>
+        <p className="mt-1 text-[13px]" style={{ color: "#4d6070" }}>
           Manage and track all your cases in one place.
         </p>
       </div>
 
       {loading ? (
-        <Loader />
+        <p className="text-[13px]" style={{ color: "#4d6070" }}>Loading...</p>
       ) : cases.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-700 p-12 text-center">
-          <FiFolder className="mx-auto mb-4 text-zinc-600" size={40} />
-          <h3 className="text-lg font-medium text-white">No cases yet</h3>
-          <p className="mt-1 text-zinc-400">
+        <div
+          className="rounded-xl border border-dashed p-12 text-center"
+          style={{ borderColor: "#1e2d3d" }}
+        >
+          <FiFolder className="mx-auto mb-4" size={36} style={{ color: "#2d4a5e" }} />
+          <h3 className="text-base font-medium" style={{ color: "#e8e0d0" }}>
+            No cases yet
+          </h3>
+          <p className="mt-1 text-[13px]" style={{ color: "#4d6070" }}>
             Create your first case to get started.
           </p>
           <button
             onClick={openCreateModal}
-            className="mx-auto mt-5 flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            className="mx-auto mt-5 flex items-center gap-2 rounded-lg border px-4 py-2 text-[13px] font-medium transition"
+            style={{
+              backgroundColor: "rgba(201, 168, 76, 0.08)",
+              borderColor: "rgba(201, 168, 76, 0.2)",
+              color: "#c9a84c",
+            }}
           >
-            <FiPlus size={16} /> New Case
+            <FiPlus size={15} /> New Case
           </button>
         </div>
       ) : (
@@ -164,24 +199,26 @@ function CaseBook() {
           {cases.map((caseItem) => (
             <div
               key={caseItem.id}
-              className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-700"
+              className="rounded-xl border p-5 transition"
+              style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
             >
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-[15px] font-semibold" style={{ color: "#e8e0d0" }}>
                   {caseItem.title}
                 </h3>
                 <span
-                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${
-                    STATUS_STYLES[caseItem.status]
-                  }`}
+                  className="shrink-0 rounded-[20px] border px-3 py-1 text-[11px] font-medium"
+                  style={STATUS_STYLES[caseItem.status]}
                 >
                   {STATUS_OPTIONS.find((s) => s.value === caseItem.status)?.label}
                 </span>
               </div>
 
-              <p className="mt-2 text-sm text-zinc-400">{caseItem.client}</p>
+              <p className="mt-2 text-[13px]" style={{ color: "#8a9baa" }}>
+                {caseItem.client}
+              </p>
 
-              <div className="mt-4 space-y-1 text-sm text-zinc-500">
+              <div className="mt-4 space-y-1 text-[12px]" style={{ color: "#4d6070" }}>
                 {caseItem.court && <p>Court: {caseItem.court}</p>}
                 {caseItem.case_number && <p>Case #: {caseItem.case_number}</p>}
                 {caseItem.date && (
@@ -194,28 +231,29 @@ function CaseBook() {
                     })}
                   </p>
                 )}
-
               </div>
 
               {caseItem.description && (
-                <p className="mt-4 line-clamp-2 text-sm text-zinc-400">
+                <p className="mt-4 line-clamp-2 text-[13px]" style={{ color: "#8a9baa" }}>
                   {caseItem.description}
                 </p>
               )}
 
-              <div className="mt-5 flex gap-2 border-t border-zinc-800 pt-4">
+              <div className="mt-5 flex gap-2 border-t pt-4" style={{ borderColor: "#1e2d3d" }}>
                 <button
                   onClick={() => openEditModal(caseItem)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-800 py-2 text-sm text-white transition hover:border-blue-500"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-2 text-[12px] font-medium transition"
+                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#8a9baa" }}
                 >
-                  <FiEdit2 size={14} /> Edit
+                  <FiEdit2 size={13} /> Edit
                 </button>
                 <button
                   onClick={() => handleDelete(caseItem.id)}
                   disabled={deletingId === caseItem.id}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-800 py-2 text-sm text-red-400 transition hover:border-red-500 disabled:opacity-50"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-2 text-[12px] font-medium transition disabled:opacity-50"
+                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#e05555" }}
                 >
-                  <FiTrash2 size={14} />
+                  <FiTrash2 size={13} />
                   {deletingId === caseItem.id ? "Deleting..." : "Delete"}
                 </button>
               </div>
@@ -230,110 +268,165 @@ function CaseBook() {
         <button
           onClick={openCreateModal}
           title="New Case"
-          className="fixed bottom-8 right-8 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 transition hover:scale-105 hover:bg-blue-700"
+          className="fixed bottom-8 right-8 flex h-14 w-14 items-center justify-center rounded-full border shadow-lg transition hover:scale-105"
+          style={{
+            backgroundColor: "#111c27",
+            borderColor: "rgba(201, 168, 76, 0.3)",
+            color: "#c9a84c",
+          }}
         >
-          <FiPlus size={24} />
+          <FiPlus size={22} />
         </button>
       )}
 
-      <Modal
-        isOpen={modalOpen}
-        onClose={closeModal}
-        title={editingCase ? "Edit Case" : "New Case"}
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Case Title"
-            placeholder="e.g. State vs. Ali"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={closeModal}
+        >
+          <div
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border p-6 shadow-2xl"
+            style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="mb-5 text-[16px] font-semibold" style={{ color: "#e8e0d0" }}>
+              {editingCase ? "Edit Case" : "New Case"}
+            </h2>
 
-          <Input
-            label="Client"
-            placeholder="e.g. Ahmed Khan"
-            value={form.client}
-            onChange={(e) => setForm({ ...form, client: e.target.value })}
-          />
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className={labelClass} style={{ color: "#4d6070" }}>
+                  Case Title
+                </label>
+                <input
+                  placeholder="e.g. State vs. Ali"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                  style={inputStyle}
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Court"
-              placeholder="e.g. Lahore High Court"
-              value={form.court}
-              onChange={(e) => setForm({ ...form, court: e.target.value })}
-            />
-            <Input
-              label="Case Number"
-              placeholder="e.g. WP-1234-2026"
-              value={form.caseNumber}
-              onChange={(e) =>
-                setForm({ ...form, caseNumber: e.target.value })
-              }
-            />
+              <div>
+                <label className={labelClass} style={{ color: "#4d6070" }}>
+                  Client
+                </label>
+                <input
+                  placeholder="e.g. Ahmed Khan"
+                  value={form.client}
+                  onChange={(e) => setForm({ ...form, client: e.target.value })}
+                  className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass} style={{ color: "#4d6070" }}>
+                    Court
+                  </label>
+                  <input
+                    placeholder="e.g. Lahore High Court"
+                    value={form.court}
+                    onChange={(e) => setForm({ ...form, court: e.target.value })}
+                    className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} style={{ color: "#4d6070" }}>
+                    Case Number
+                  </label>
+                  <input
+                    placeholder="e.g. WP-1234-2026"
+                    value={form.caseNumber}
+                    onChange={(e) => setForm({ ...form, caseNumber: e.target.value })}
+                    className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass} style={{ color: "#4d6070" }}>
+                    Status
+                  </label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value })}
+                    className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                    style={inputStyle}
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass} style={{ color: "#4d6070" }}>
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass} style={{ color: "#4d6070" }}>
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Brief summary of the case..."
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="w-full rounded-lg border px-4 py-2.5 text-[13px] focus:outline-none"
+                  style={inputStyle}
+                />
+              </div>
+
+              {formError && (
+                <p className="text-[12px]" style={{ color: "#e05555" }}>{formError}</p>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="flex-1 rounded-lg border py-2.5 text-[13px] font-medium transition"
+                  style={{ backgroundColor: "#162030", borderColor: "#1e2d3d", color: "#8a9baa" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 rounded-lg border py-2.5 text-[13px] font-medium transition disabled:opacity-60"
+                  style={{
+                    backgroundColor: "rgba(201, 168, 76, 0.08)",
+                    borderColor: "rgba(201, 168, 76, 0.2)",
+                    color: "#c9a84c",
+                  }}
+                >
+                  {submitting
+                    ? "Saving..."
+                    : editingCase
+                    ? "Save Changes"
+                    : "Create Case"}
+                </button>
+              </div>
+            </form>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <label className="mb-1 block text-sm font-medium text-zinc-300">
-                Status
-              </label>
-              <select
-                value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
-              >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Input
-              label="Date"
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-            />
-          </div>
-
-          <div className="space-y-3">
-            <label className="mb-1 block text-sm font-medium text-zinc-300">
-              Description
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Brief summary of the case..."
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          {formError && <p className="text-sm text-red-400">{formError}</p>}
-
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="flex-1 rounded-xl border border-zinc-700 py-3 text-zinc-300 transition hover:bg-zinc-800"
-            >
-              Cancel
-            </button>
-            <Button type="submit" className="flex-1">
-              {submitting
-                ? "Saving..."
-                : editingCase
-                ? "Save Changes"
-                : "Create Case"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,21 +1,26 @@
-import { FiArrowUpRight } from "react-icons/fi";
-
 function StatCard({ title, value, icon }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10">
+    <div
+      className="rounded-xl border p-5"
+      style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
+    >
       <div className="flex items-center justify-between">
-        <div className="rounded-xl bg-zinc-800 p-3 text-blue-500">
+        <span
+          className="text-[10px] font-medium uppercase tracking-[0.12em]"
+          style={{ color: "#4d6070" }}
+        >
+          {title}
+        </span>
+
+        <div
+          className="flex h-8 w-8 items-center justify-center rounded-lg"
+          style={{ backgroundColor: "rgba(201, 168, 76, 0.08)", color: "#c9a84c" }}
+        >
           {icon}
         </div>
-
-        <FiArrowUpRight className="text-zinc-500" />
       </div>
 
-      <h3 className="mt-6 text-sm font-medium text-zinc-400">
-        {title}
-      </h3>
-
-      <p className="mt-2 text-3xl font-bold text-white">
+      <p className="mt-4 text-3xl font-semibold" style={{ color: "#e8e0d0" }}>
         {value}
       </p>
     </div>

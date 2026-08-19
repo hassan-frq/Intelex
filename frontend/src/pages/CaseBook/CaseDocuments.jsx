@@ -73,18 +73,22 @@ function CaseDocuments({ caseId }) {
   }
 
   return (
-    <div className="mt-4 border-t border-zinc-800 pt-4">
+    <div className="mt-4 border-t pt-4" style={{ borderColor: "#1e2d3d" }}>
       <div className="mb-2 flex items-center justify-between">
-        <span className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <FiPaperclip size={14} /> Documents
+        <span
+          className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.12em]"
+          style={{ color: "#4d6070" }}
+        >
+          <FiPaperclip size={12} /> Documents
         </span>
 
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1 text-xs text-blue-400 transition hover:text-blue-300 disabled:opacity-50"
+          className="flex items-center gap-1 text-[11px] font-medium transition disabled:opacity-50"
+          style={{ color: "#c9a84c" }}
         >
-          <FiUpload size={12} />
+          <FiUpload size={11} />
           {uploading ? "Uploading..." : "Upload PDF"}
         </button>
         <input
@@ -96,26 +100,34 @@ function CaseDocuments({ caseId }) {
         />
       </div>
 
-      {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p className="mb-2 text-[11px]" style={{ color: "#e05555" }}>
+          {error}
+        </p>
+      )}
 
       {loading ? (
-        <p className="text-xs text-zinc-500">Loading...</p>
+        <p className="text-[11px]" style={{ color: "#4d6070" }}>Loading...</p>
       ) : documents.length === 0 ? (
-        <p className="text-xs text-zinc-500">No documents attached yet.</p>
+        <p className="text-[11px]" style={{ color: "#4d6070" }}>
+          No documents attached yet.
+        </p>
       ) : (
         <ul className="space-y-1.5">
           {documents.map((doc) => (
             <li
               key={doc.id}
-              className="flex items-center justify-between gap-2 rounded-lg bg-zinc-800/60 px-3 py-2 text-xs"
+              className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[11px]"
+              style={{ backgroundColor: "#0a1420", borderColor: "#1e2d3d" }}
             >
               <button
                 onClick={() => viewCaseDocument(doc.id)}
-                className="flex min-w-0 flex-1 items-center gap-2 text-left text-zinc-300 hover:text-white"
+                className="flex min-w-0 flex-1 items-center gap-2 text-left transition"
+                style={{ color: "#8a9baa" }}
               >
-                <FiFileText size={14} className="shrink-0 text-zinc-500" />
+                <FiFileText size={13} className="shrink-0" style={{ color: "#4d6070" }} />
                 <span className="truncate">{doc.filename}</span>
-                <span className="shrink-0 text-zinc-500">
+                <span className="shrink-0" style={{ color: "#4d6070" }}>
                   ({formatSize(doc.file_size)})
                 </span>
               </button>
@@ -123,9 +135,10 @@ function CaseDocuments({ caseId }) {
               <button
                 onClick={() => handleDelete(doc.id)}
                 disabled={deletingId === doc.id}
-                className="shrink-0 text-zinc-500 transition hover:text-red-400 disabled:opacity-50"
+                className="shrink-0 transition disabled:opacity-50"
+                style={{ color: "#4d6070" }}
               >
-                <FiTrash2 size={14} />
+                <FiTrash2 size={13} />
               </button>
             </li>
           ))}

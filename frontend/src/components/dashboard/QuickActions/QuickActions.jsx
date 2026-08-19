@@ -1,8 +1,6 @@
 import { FiFolderPlus, FiMic, FiFileText } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-// TODO: replace hardcoded case id "1" with a real case id once
-// Case Book (create/select case) is implemented by Hasnain.
 const PLACEHOLDER_CASE_ID = "1";
 
 function QuickActions() {
@@ -10,42 +8,46 @@ function QuickActions() {
 
   const actions = [
     {
-      title: "New Case",
-      icon: <FiFolderPlus size={20} />,
-      onClick: () => navigate("/cases"),
-      disabled: false,
+      title: "Start Recording",
+      icon: <FiMic size={15} />,
+      onClick: () => navigate(`/case/${PLACEHOLDER_CASE_ID}/speech`),
+      variant: "primary",
     },
     {
-      title: "Start Recording",
-      icon: <FiMic size={20} />,
-      onClick: () => navigate(`/case/${PLACEHOLDER_CASE_ID}/speech`),
-      disabled: false,
+      title: "New Case",
+      icon: <FiFolderPlus size={15} />,
+      onClick: () => navigate("/cases"),
+      variant: "secondary",
     },
     {
       title: "Generate Document",
-      icon: <FiFileText size={20} />,
+      icon: <FiFileText size={15} />,
       onClick: () => navigate(`/case/${PLACEHOLDER_CASE_ID}/generate`),
-      disabled: false,
+      variant: "secondary",
     },
   ];
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-      <h2 className="mb-5 text-lg font-semibold text-white">
+    <div
+      className="rounded-xl border p-5"
+      style={{ backgroundColor: "#111c27", borderColor: "#1e2d3d" }}
+    >
+      <span
+        className="mb-4 block text-[10px] font-medium uppercase tracking-[0.12em]"
+        style={{ color: "#4d6070" }}
+      >
         Quick Actions
-      </h2>
+      </span>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         {actions.map((action) => (
           <button
             key={action.title}
             onClick={action.onClick}
-            disabled={action.disabled}
-            title={action.disabled ? "Coming soon" : undefined}
-            className={`flex items-center gap-3 rounded-xl border p-4 text-white transition ${
-              action.disabled
-                ? "cursor-not-allowed border-zinc-800 bg-zinc-800/50 opacity-50"
-                : "border-zinc-800 bg-zinc-800 hover:border-blue-500 hover:bg-zinc-700"
+            className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[13px] font-medium transition ${
+              action.variant === "primary"
+                ? "border-[rgba(201,168,76,0.2)] bg-[rgba(201,168,76,0.08)] text-[#c9a84c] hover:bg-[rgba(201,168,76,0.14)] hover:border-[rgba(201,168,76,0.35)]"
+                : "border-[#1e2d3d] bg-[#162030] text-[#8a9baa] hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
             }`}
           >
             {action.icon}

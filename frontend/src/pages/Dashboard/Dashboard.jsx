@@ -17,24 +17,33 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-white">
-          Welcome back!
+    <div className="space-y-4">
+      <div className="mb-3">
+        <span
+          className="text-[10px] font-medium uppercase tracking-[0.15em]"
+          style={{ color: "#c9a84c" }}
+        >
+          Operations Overview
+        </span>
+        <h1
+          className="mt-1 text-[22px] font-semibold"
+          style={{ color: "#e8e0d0" }}
+        >
+          Dashboard
         </h1>
-        <p className="mt-2 text-zinc-400">
-          Here's an overview of your workspace.
+        <p className="mt-1 text-[13px]" style={{ color: "#4d6070" }}>
+          Track cases, documents, and sessions across your workspace.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           title="Cases"
           value={caseCount === null ? "..." : String(caseCount)}
-          icon={<FiFolder size={22} />}
+          icon={<FiFolder size={16} />}
         />
-        <StatCard title="Documents" value="0" icon={<FiFileText size={22} />}/>
-        <StatCard title="Speech Sessions" value="0" icon={<FiMic size={22} />}/>
+        <StatCard title="Documents" value="0" icon={<FiFileText size={16} />} />
+        <StatCard title="Speech Sessions" value="0" icon={<FiMic size={16} />} />
       </div>
 
       <QuickActions />

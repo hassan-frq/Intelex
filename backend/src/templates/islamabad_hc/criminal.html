@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Islamabad High Court - Criminal Jurisdiction Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.0in 1.0in 1.0in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .case-number {
+      text-align: right;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .party-block {
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .party-row {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .party-name {
+      display: block;
+      width: 100%;
+    }
+    .party-role {
+      display: block;
+      text-align: right;
+    }
+    .versus-row {
+      text-align: center;
+      margin: 15px 0;
+    }
+    .metadata-box {
+      border: 1.5pt solid #000000;
+      padding: 12pt;
+      margin: 20px 0;
+      font-size: 14pt;
+      line-height: 1.5;
+      background-color: #ffffff;
+    }
+    .metadata-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1.5pt solid #000000;
+      padding-bottom: 5px;
+      font-size: 14pt;
+    }
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 8px;
+    }
+    .metadata-label {
+      font-weight: bold;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 0.5in;
+      text-align: justify;
+    }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
+    .statement-list li {
+      margin-bottom: 12pt;
+      padding-left: 5pt;
+      display: list-item;
+    }
+    .prayer-body {
+      text-align: justify;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 40px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE ISLAMABAD HIGH COURT, ISLAMABAD
+  </div>
+  <div class="court-jurisdiction">
+    ( CRIMINAL MISCELLANEOUS JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    Crl. Misc. No. ________ - B / 2026
+  </div>
+
+  <div class="party-block">
+    <div class="party-row">
+      <span class="party-name">{{petitioner}} (PRESENTLY IN JUDICIAL LOCKUP)</span>
+      <span class="party-role">... Petitioner / Accused</span>
+    </div>
+    
+    <div class="versus-row">
+      VERSUS
+    </div>
+    
+    <div class="party-row">
+      <span class="party-name">1. THE STATE <br>2. {{respondent}}</span>
+      <span class="party-role">... Respondents</span>
+    </div>
+  </div>
+
+  <!-- Mandatory FIR Metadata Block (IHC Guide Page 4 Item 5) -->
+  <div class="metadata-box">
+    <div class="metadata-title">FIR Metadata Details</div>
+    <div class="metadata-grid">
+      <div class="metadata-label">FIR Number:</div>
+      <div>{{firNo}}</div>
+      <div class="metadata-label">Registration Date:</div>
+      <div>{{firDate}}</div>
+      <div class="metadata-label">Offense(s) Charged:</div>
+      <div>{{offense}}</div>
+      <div class="metadata-label">Police Station:</div>
+      <div>{{policeStation}}</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    PETITION UNDER SECTION 497 READ WITH SECTION 498 OF THE CODE OF CRIMINAL PROCEDURE (CrPC), 1898 FOR THE GRANT OF BAIL REGARDING: {{subject}}
+  </div>
+
+  <div class="salutation">
+    MOST RESPECTFULLY SHEWETH:
+  </div>
+
+  <ol class="statement-list" type="A">
+    {{facts}}
+  </ol>
+
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="1">
+    {{grounds}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
+  <div class="prayer-body">
+    It is, therefore, most respectfully prayed that this Honorable Court may be pleased to accept this application and release the Petitioner on bail, pending trial, subject to satisfying surety bonds. Any other relief that this Honorable Court deems fit may also be awarded.
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Islamabad</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Through:</div>
+      <div class="counsel-name">{{advocate}}</div>
+      <div style="font-size: 12pt;">Advocate High Court</div>
+    </div>
+  </div>
+
+  <!-- Mandatory Verification on Oath -->
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to the best of my personal knowledge and belief derived from case records.
+    </p>
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        COUNSEL
+      </div>
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        DEPONENT
+      </div>
+    </div>
+  </div>
+
+  <!-- Mandatory Criminal Non-Filing Certificate (IHC Guide Page 4 Item 9) -->
+  <div class="legal-block" style="margin-top: 20px;">
+    <div class="block-title">Certificate of Non-Filing</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Certified that no identical criminal petition/bail application has previously been filed, rejected, or is pending before the Honorable Supreme Court of Pakistan or this High Court.
+    </p>
+    <div style="text-align: right; margin-top: 30px;">
+      <span style="font-weight: bold;">ADVOCATE HIGH COURT</span>
+    </div>
+  </div>
+
+</body>
+</html>

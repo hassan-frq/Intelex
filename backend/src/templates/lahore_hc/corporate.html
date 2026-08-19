@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lahore High Court - Corporate/Company Jurisdiction Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.0in 1.0in 1.0in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .case-number {
+      text-align: right;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .party-block {
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .party-row {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .party-name {
+      display: block;
+      width: 100%;
+    }
+    .party-role {
+      display: block;
+      text-align: right;
+    }
+    .versus-row {
+      text-align: center;
+      margin: 15px 0;
+    }
+    .metadata-box {
+      border: 1.5pt solid #000000;
+      padding: 12pt;
+      margin: 20px 0;
+      font-size: 14pt;
+      line-height: 1.5;
+    }
+    .metadata-title {
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1.5pt solid #000000;
+      padding-bottom: 5px;
+      font-size: 14pt;
+    }
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 2.2fr 3fr;
+      gap: 8px;
+    }
+    .metadata-label {
+      font-weight: bold;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 0.5in;
+      text-align: justify;
+    }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
+    .statement-list li {
+      margin-bottom: 12pt;
+      padding-left: 5pt;
+      display: list-item;
+    }
+    .prayer-body {
+      text-align: justify;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 40px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE LAHORE HIGH COURT, LAHORE
+  </div>
+  <div class="court-jurisdiction">
+    ( ORIGINAL JURISDICTION / COMPANY JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    Company Petition No. ________ / 2026
+  </div>
+
+  <div class="party-block">
+    <div class="party-row">
+      <span class="party-name">{{petitioner}}</span>
+      <span class="party-role">... Petitioner</span>
+    </div>
+    
+    <div class="versus-row">
+      VERSUS
+    </div>
+    
+    <!-- Mandatory inclusion of SECP as Respondent #2 (LHC Rule Page 6 Item 3) -->
+    <div class="party-row">
+      <span class="party-name">
+        1. {{companyName}} <br>
+        2. SECURITIES AND EXCHANGE COMMISSION OF PAKISTAN (SECP)
+      </span>
+      <span class="party-role">... Respondents</span>
+    </div>
+  </div>
+
+  <!-- Mandatory Corporate Profile Block (LHC Rule Page 6 Item 5) -->
+  <div class="metadata-box">
+    <div class="metadata-title">Corporate Profile Block</div>
+    <div class="metadata-grid">
+      <div class="metadata-label">Company Name:</div>
+      <div>{{companyName}}</div>
+      <div class="metadata-label">CUIN Number:</div>
+      <div>{{cuin}}</div>
+      <div class="metadata-label">Authorized Capital:</div>
+      <div>{{authorizedCapital}}</div>
+      <div class="metadata-label">Paid-up Capital:</div>
+      <div>{{paidUpCapital}}</div>
+      <div class="metadata-label">Registered Office:</div>
+      <div>{{registeredAddress}}</div>
+    </div>
+  </div>
+
+  <div class="subject-title">
+    PETITION UNDER SECTION 286 READ WITH SECTION 301 OF THE COMPANIES ACT, 2017 REGARDING: {{subject}}
+  </div>
+
+  <div class="salutation">
+    RESPECTFULLY SHEWETH:
+  </div>
+
+  <ol class="statement-list" type="A">
+    {{facts}}
+  </ol>
+
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="1">
+    {{grounds}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
+  <div class="prayer-body">
+    It is most respectfully prayed that this Honorable Court may be pleased to accept this Petition, pass directives protecting the interest of minority shareholders, or direct the winding up of the Target Company by appointing an Official Liquidator.
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Lahore</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Through:</div>
+      <div class="counsel-name">{{advocate}}</div>
+      <div style="font-size: 12pt;">Advocate High Court</div>
+    </div>
+  </div>
+
+  <!-- Corporate Board Authority Clause (LHC Rule Page 6 Item 9) -->
+  <div class="legal-block">
+    <div class="block-title">Authority Statement / Board Resolution</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      The undersigned is duly authorized to institute, sign, and verify this petition on behalf of the Petitioner Entity pursuant to the certified Board Resolution dated {{draftDate}} attached herewith.
+    </p>
+  </div>
+
+  <!-- Mandatory Verification on Oath -->
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Lahore on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} of this petition are true to the best of my personal knowledge and official corporate records maintained by the Petitioner.
+    </p>
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        COUNSEL
+      </div>
+      <div style="text-align: center; width: 200px; border-top: 1pt solid #000; padding-top: 5px; font-weight: bold;">
+        AUTHORIZED SIGNATORY
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

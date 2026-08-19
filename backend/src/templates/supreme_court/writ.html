@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supreme Court of Pakistan - Writ Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.0in 1.0in 1.0in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .case-number {
+      text-align: right;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .party-block {
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .party-row {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .party-name {
+      display: block;
+      width: 100%;
+    }
+    .party-role {
+      display: block;
+      text-align: right;
+    }
+    .versus-row {
+      text-align: center;
+      margin: 15px 0;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 0.5in;
+      text-align: justify;
+    }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
+    .statement-list li {
+      margin-bottom: 12pt;
+      padding-left: 5pt;
+      display: list-item;
+    }
+    .prayer-body {
+      text-align: justify;
+      text-indent: 0.5in;
+      margin-bottom: 30px;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 40px;
+      page-break-inside: avoid;
+    }
+    .counsel-signature {
+      text-align: right;
+    }
+    .counsel-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .legal-block {
+      border: 1pt solid #000000;
+      padding: 15pt;
+      margin-top: 25px;
+      font-size: 12pt;
+      page-break-inside: avoid;
+    }
+    .block-title {
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-size: 13pt;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE SUPREME COURT OF PAKISTAN
+  </div>
+  <div class="court-jurisdiction">
+    ( ORIGINAL JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    Writ Petition No. ________ / 2026
+  </div>
+
+  <div class="party-block">
+    <div class="party-row">
+      <span class="party-name">{{petitioner}}</span>
+      <span class="party-role">... Petitioner</span>
+    </div>
+    
+    <div class="versus-row">
+      VERSUS
+    </div>
+    
+    <div class="party-row">
+      <span class="party-name">{{respondent}}</span>
+      <span class="party-role">... Respondents</span>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    PETITION UNDER ARTICLE 184(3) OF THE CONSTITUTION OF PAKISTAN FOR ISSUANCE OF WRIT OF CERTIORARI / MANDAMUS REGARDING: {{subject}}
+  </div>
+
+  <div class="salutation">
+    RESPECTFULLY SHEWETH:
+  </div>
+
+  <ol class="statement-list" type="A">
+    {{facts}}
+  </ol>
+
+  <div class="section-title">GROUNDS:</div>
+  <ol class="statement-list" type="1">
+    {{grounds}}
+  </ol>
+
+  <div class="section-title">PRAYER:</div>
+  <div class="prayer-body">
+    {{prayer}}
+  </div>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Islamabad</strong></div>
+    </div>
+    <div class="counsel-signature">
+      <div>Through:</div>
+      <div class="counsel-name">{{advocate}}</div>
+      <div style="font-size: 12pt;">Advocate-on-Record (AOR)</div>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-title">Verification on Oath</div>
+    <p style="text-indent: 0.5in; margin: 0;">
+      Verified on Oath at Islamabad on this {{draftDate}} that the contents of paragraphs 1 to {{caseId}} are true to the best of my personal knowledge and belief.
+    </p>
+  </div>
+
+</body>
+</html>

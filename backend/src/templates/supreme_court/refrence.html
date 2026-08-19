@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supreme Court of Pakistan - Presidential Reference Template</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1.0in 1.0in 1.0in 1.5in;
+    }
+    body {
+      font-family: "Times New Roman", "Jameel Noori Nastaliq", Georgia, serif;
+      font-size: 14pt;
+      line-height: 1.5;
+      color: #000000;
+      text-align: justify;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      text-indent: 0.5in;
+      margin-top: 0;
+      margin-bottom: 0.5em;
+    }
+    .court-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .court-jurisdiction {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+    .case-number {
+      text-align: center;
+      font-weight: bold;
+      font-size: 16pt;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      text-decoration: underline;
+    }
+    .reference-header {
+      font-size: 16pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    .divider {
+      border: 0;
+      border-top: 1.5pt solid #000000;
+      margin: 20px 0;
+    }
+    .subject-title {
+      text-align: center;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 16pt;
+      line-height: 1.5;
+      margin-bottom: 25px;
+      text-decoration: underline;
+    }
+    .salutation {
+      font-weight: bold;
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 14pt;
+      text-transform: uppercase;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+    .statement-list {
+      margin-left: 0;
+      padding-left: 0.5in;
+      text-align: justify;
+    }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
+    .statement-list li {
+      margin-bottom: 12pt;
+      padding-left: 5pt;
+      display: list-item;
+    }
+    .footer-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 40px;
+      page-break-inside: avoid;
+    }
+    .executive-signature {
+      text-align: right;
+    }
+    .executive-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="court-header">
+    IN THE SUPREME COURT OF PAKISTAN
+  </div>
+  <div class="court-jurisdiction">
+    ( ADVISORY JURISDICTION )
+  </div>
+
+  <div class="case-number">
+    SPECIAL REFERENCE NO. ________ OF 2026
+  </div>
+
+  <div class="reference-header">
+    REFERENCE BY THE PRESIDENT OF THE ISLAMIC REPUBLIC OF PAKISTAN UNDER ARTICLE 186 OF THE CONSTITUTION OF THE ISLAMIC REPUBLIC OF PAKISTAN, 1973
+  </div>
+
+  <hr class="divider" />
+
+  <div class="subject-title">
+    SPECIAL REFERENCE ON A QUESTION OF LAW OF PUBLIC IMPORTANCE REGARDING: {{subject}}
+  </div>
+
+  <div class="salutation">
+    MAY IT PLEASE THE HONORABLE CHIEF JUSTICE AND ASSOCIATE JUDGES OF THE SUPREME COURT OF PAKISTAN:
+  </div>
+
+  <div class="section-title">STATEMENT OF CONSTITUTIONAL IMPASSE / FACTS:</div>
+  <ol class="statement-list" type="A">
+    {{facts}}
+  </ol>
+
+  <!-- Specific Questions for Advisory Opinion (SC Rules Page 7 Item 3) -->
+  <div class="section-title">SPECIFIC QUESTIONS OF LAW FOR ADVISORY OPINION:</div>
+  <ol class="statement-list">
+    {{questionsOfLaw}}
+  </ol>
+
+  <div class="section-title">FORMAL SUBMISSION:</div>
+  <p>
+    The President of the Islamic Republic of Pakistan formally submits the aforementioned Question(s) of Law to the Supreme Court of Pakistan for its opinion under Article 186 of the Constitution.
+  </p>
+
+  <div class="footer-block">
+    <div>
+      <div>Dated: <strong>{{draftDate}}</strong></div>
+      <div>Place: <strong>Aiwan-e-Sadr, Islamabad</strong></div>
+    </div>
+    <div class="executive-signature">
+      <div>By Order and on behalf of the President:</div>
+      <div class="executive-name">ATTORNEY GENERAL FOR PAKISTAN</div>
+      <div style="font-size: 12pt;">Supreme Court of Pakistan</div>
+    </div>
+  </div>
+
+</body>
+</html>

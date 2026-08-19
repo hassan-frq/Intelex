@@ -31,3 +31,18 @@ body,
   scrollbar-width: thin;
   scrollbar-color: #52525b #18181b;
 }
+
+/* Restore list style inside statement lists overriding Tailwind Preflight */
+ol.statement-list {
+  list-style-type: decimal !important;
+  padding-left: 0.5in !important;
+}
+ol.statement-list[type="A"] {
+  list-style-type: upper-alpha !important;
+}
+ol.statement-list[type="1"] {
+  list-style-type: decimal !important;
+}
+ol.statement-list li {
+  display: list-item !important;
+}

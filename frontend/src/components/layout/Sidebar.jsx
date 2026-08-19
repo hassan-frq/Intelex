@@ -12,7 +12,6 @@ function Sidebar() {
   const links = [
     { name: "Dashboard", path: "/dashboard", icon: <FiHome size={15} /> },
     { name: "Case Book", path: "/cases", icon: <FiFolder size={15} /> },
-    { name: "Speech to Text", path: "/case/1/speech", icon: <FiMic size={15} /> },
     { name: "Previous Cases", path: "/case/1/previous-cases", icon: <FiClock size={15} /> },
     { name: "Generate Document", path: "/case/1/generate", icon: <FiFileText size={15} /> },
     { name: "Settings", path: "/settings", icon: <FiSettings size={15} /> },

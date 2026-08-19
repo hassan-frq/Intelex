@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   FiArrowLeft, 
   FiCheck, 
@@ -9,9 +10,9 @@ import {
   FiFile,
   FiEdit,
   FiBookOpen,
-  FiAlertCircle,
   FiMic,
-  FiSquare
+  FiSquare,
+  FiEye
 } from "react-icons/fi";
 import { transcribeAudio } from "../../services/speechService";
 import { generateDocument, searchReferences, generateWithCitations } from "../../services/documentService";
@@ -196,8 +197,9 @@ const DYNAMIC_FIELDS_CONFIG = {
 };
 
 function DocumentGenerator() {
+  const navigate = useNavigate();
   
-  const [step, setStep] = useState("config");
+  const [step, setStep] = useState("config"); // 'config' | 'generating' | 'curation' | 'editor'
   const [loadingPhase, setLoadingPhase] = useState("searching"); // 'searching' | 'drafting'
   const [extractedKeywords, setExtractedKeywords] = useState([]);
   const [scrapedPrecedents, setScrapedPrecedents] = useState([]);
@@ -223,16 +225,19 @@ function DocumentGenerator() {
     }));
   };
   
-  useEffect(() => {
-    const validTypes = COURT_DOCUMENT_TYPES[selectedCourtId] || [];
-    if (validTypes.length > 0) {
-      const isValid = validTypes.some(type => type.id === selectedDocTypeId);
-      if (!isValid) {
-        setSelectedDocTypeId(validTypes[0].id);
-      }
+  const handleSelectCourt = (courtId) => {
+    setSelectedCourtId(courtId);
+    const validTypes = COURT_DOCUMENT_TYPES[courtId] || [];
+    if (validTypes.length > 0 && !validTypes.some(t => t.id === selectedDocTypeId)) {
+      setSelectedDocTypeId(validTypes[0].id);
     }
     setExtraMetadata({});
-  }, [selectedCourtId, selectedDocTypeId]);
+  };
+
+  const handleSelectDocType = (docTypeId) => {
+    setSelectedDocTypeId(docTypeId);
+    setExtraMetadata({});
+  };
 
   
   const [isRecording, setIsRecording] = useState(false);
@@ -265,11 +270,11 @@ function DocumentGenerator() {
 
   const currentLoadingStages = loadingPhase === "searching" ? searchingStages : draftingStages;
 
-  //  Text Editor editable state
+  // Text Editor editable state
   const [editableContent, setEditableContent] = useState("");
   const editorRef = useRef(null);
   
-  //  toast notification state
+  // Toast notification state
   const [toastMessage, setToastMessage] = useState("");
 
   const selectedCourt = COURTS.find(c => c.id === selectedCourtId) || COURTS[0];
@@ -287,7 +292,6 @@ function DocumentGenerator() {
   // Manage Recording Timer
   useEffect(() => {
     if (isRecording) {
-      setRecordingDuration(0);
       timerIntervalRef.current = setInterval(() => {
         setRecordingDuration(prev => prev + 1);
       }, 1000);
@@ -317,20 +321,18 @@ function DocumentGenerator() {
     mediaRecorder.onstop = async () => {
       const audioBlob = new Blob(chunks, { type: "audio/webm" });
 
-      
       if (isRecordingRef.current) {
         recordChunk(stream, seq + 1);
       } else {
         stream.getTracks().forEach((track) => track.stop());
       }
 
-      //   transcription in the background
+      // Transcription in background
       try {
         setRecordingState("transcribing");
         const transcriptText = await transcribeAudio(audioBlob);
         if (transcriptText && transcriptText.trim()) {
           transcriptsMapRef.current[seq] = transcriptText.trim();
-
 
           const sortedSeqs = Object.keys(transcriptsMapRef.current)
             .map(Number)
@@ -340,7 +342,6 @@ function DocumentGenerator() {
           setSubject(orderedTexts.join(" "));
           setRecordingState("success");
         } else {
-          
           setRecordingState("success");
         }
       } catch (err) {
@@ -362,6 +363,7 @@ function DocumentGenerator() {
   const startRecording = async () => {
     transcriptsMapRef.current = {};
     setRecordingState("idle");
+    setRecordingDuration(0);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -369,7 +371,7 @@ function DocumentGenerator() {
       isRecordingRef.current = true;
       setIsRecording(true);
       setRecordingState("recording");
-      showToast("Dictation started. Speak into your mic.");
+      showToast("Dictation started. Speak into your microphone.");
 
       recordChunk(stream, 0);
     } catch (err) {
@@ -423,7 +425,6 @@ function DocumentGenerator() {
 
       if (!data.results || data.results.length === 0) {
         showToast("No relevant precedents found on Google Scholar. Proceeding with standard draft.");
-        // If no results are found, go straight to drafting without references
         await handleDraftDirectly(subject);
       } else {
         setStep("curation");
@@ -471,6 +472,7 @@ function DocumentGenerator() {
       clearInterval(loadingTimer);
       setEditableContent(htmlContent);
       setStep("editor");
+      saveDraftToLocalStorage(htmlContent, metadata, selectedList);
       showToast("Legal document drafted successfully with citations.");
     } catch (err) {
       clearInterval(loadingTimer);
@@ -512,6 +514,7 @@ function DocumentGenerator() {
       clearInterval(loadingTimer);
       setEditableContent(htmlContent);
       setStep("editor");
+      saveDraftToLocalStorage(htmlContent, metadata, []);
       showToast("Document generated successfully.");
     } catch (err) {
       clearInterval(loadingTimer);
@@ -521,6 +524,53 @@ function DocumentGenerator() {
     }
   };
 
+  const saveDraftToLocalStorage = (htmlContent, metadata, precedents = []) => {
+    try {
+      const draftObj = {
+        htmlContent: htmlContent || editableContent,
+        metadata: metadata || {
+          courtId: selectedCourtId,
+          documentTypeId: selectedDocTypeId,
+          petitioner,
+          respondent,
+          caseNumber,
+          advocate,
+          draftDate,
+          subject,
+          extraMetadata
+        },
+        selectedCourt,
+        selectedDocType,
+        precedents: precedents.length > 0 ? precedents : scrapedPrecedents.filter((_, i) => selectedPrecedentIndices[i]),
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem("intelex_latest_draft", JSON.stringify(draftObj));
+    } catch (e) {
+      console.error("Could not save draft to local storage", e);
+    }
+  };
+
+  const navigateToPreview = () => {
+    saveDraftToLocalStorage(editableContent, null, []);
+    navigate("/case/1/preview", {
+      state: {
+        content: editableContent,
+        metadata: {
+          court: selectedCourt,
+          docType: selectedDocType,
+          petitioner,
+          respondent,
+          caseNumber,
+          advocate,
+          draftDate,
+          subject,
+          extraMetadata,
+          precedents: scrapedPrecedents.filter((_, i) => selectedPrecedentIndices[i])
+        }
+      }
+    });
+  };
+
   // Format Recording Duration time
   const formatTime = (secs) => {
     const minutes = Math.floor(secs / 60);
@@ -528,13 +578,11 @@ function DocumentGenerator() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  
   const handleDownload = () => {
     const content = editorRef.current ? editorRef.current.innerHTML : editableContent;
     
     const element = document.createElement("div");
     
-    // Standard legal margins layout styling
     element.style.fontFamily = "'Times New Roman', Georgia, serif";
     element.style.fontSize = "15px";
     element.style.lineHeight = "2";
@@ -543,8 +591,6 @@ function DocumentGenerator() {
     element.style.padding = "0.2in 0.2in 0.2in 0.5in"; 
     element.innerHTML = content;
 
-    // Inject styles to avoid page-break inside key block elements,
-    // which prevents text lines from being sliced in half horizontally (distortion).
     const style = document.createElement("style");
     style.innerHTML = `
       p, li, tr, th, td, h1, h2, h3, h4, h5, h6, table, blockquote, 
@@ -558,7 +604,7 @@ function DocumentGenerator() {
     element.appendChild(style);
     
     const opt = {
-      margin:       [0.8, 1.2, 0.8, 0.8], // [top, left, bottom, right] in inches
+      margin:       [0.8, 1.2, 0.8, 0.8],
       filename:     `${selectedDocType.id}_supreme_court.pdf`.toLowerCase(),
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
@@ -566,7 +612,6 @@ function DocumentGenerator() {
       pagebreak:    { mode: ['css', 'legacy'] }
     };
     
-    // Trigger download
     if (html2pdf) {
       showToast("Compiling PDF document for download...");
       html2pdf().from(element).set(opt).save().then(() => {
@@ -580,7 +625,7 @@ function DocumentGenerator() {
     }
   };
 
-  //  Text Editor formatting wrapper
+  // Text Editor formatting wrapper
   const formatText = (command) => {
     document.execCommand(command, false, null);
     if (editorRef.current) {
@@ -588,39 +633,110 @@ function DocumentGenerator() {
     }
   };
 
+  // Stepper Visual Data
+  const stepperSteps = [
+    { id: "config", label: "1. Case Setup" },
+    { id: "searching", label: "2. Scholar Search" },
+    { id: "curation", label: "3. Precedent Curation" },
+    { id: "editor", label: "4. Live Draft Editor" }
+  ];
+
+  const getActiveStepIndex = () => {
+    if (step === "config") return 0;
+    if (step === "generating" && loadingPhase === "searching") return 1;
+    if (step === "curation") return 2;
+    if (step === "generating" && loadingPhase === "drafting") return 3;
+    if (step === "editor") return 3;
+    return 0;
+  };
+
+  const currentActiveIndex = getActiveStepIndex();
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-4 text-white shadow-2xl animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/20 text-blue-500">
-            <FiCheck className="h-5 w-5" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-[#1e2d3d] bg-[#111c27] px-4 py-3 text-[#e8e0d0] shadow-2xl transition duration-300">
+          <div className="flex h-7 w-7 items-center justify-center rounded bg-[rgba(201,168,76,0.12)] text-[#c9a84c]">
+            <FiCheck className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-sm font-medium">{toastMessage}</p>
+            <p className="text-[13px] font-medium">{toastMessage}</p>
           </div>
         </div>
       )}
 
-      
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      {/* Signature Page Header */}
+      <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between border-b border-[#1e2d3d] pb-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <FiFileText className="text-blue-500" /> Document Generator
+          <span className="block text-[10px] font-medium uppercase tracking-[0.15em] text-[#c9a84c] mb-1">
+            DOCUMENT GENERATION
+          </span>
+          <h1 className="text-[22px] font-semibold tracking-tight text-[#e8e0d0] flex items-center gap-2.5">
+            <FiFileText className="text-[#c9a84c]" size={20} /> Document Generator
           </h1>
+          <p className="text-[13px] text-[#4d6070] mt-0.5">
+            Configure case parameters, curate precedent case law citations, and draft formal court petitions.
+          </p>
+        </div>
+
+        {step === "editor" && (
+          <div className="flex items-center gap-2 mt-3 md:mt-0">
+            <button
+              onClick={navigateToPreview}
+              className="flex items-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] px-3.5 py-2 text-[13px] font-medium text-[#e8e0d0] transition hover:bg-[#1c2a3a] hover:border-[rgba(201,168,76,0.3)] hover:text-[#c9a84c]"
+            >
+              <FiEye className="h-4 w-4" /> Full Preview & Print
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Visual Stepper Progress Bar */}
+      <div className="rounded-xl border border-[#1e2d3d] bg-[#111c27] p-3.5 shadow-sm">
+        <div className="flex items-center justify-between gap-2 overflow-x-auto">
+          {stepperSteps.map((s, idx) => {
+            const isActive = idx === currentActiveIndex;
+            const isCompleted = idx < currentActiveIndex;
+
+            return (
+              <div key={s.id} className="flex flex-1 items-center gap-2 min-w-[140px]">
+                <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-semibold border transition ${
+                  isActive
+                    ? "border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.12)] text-[#c9a84c]"
+                    : isCompleted
+                    ? "border-[rgba(76,175,130,0.3)] bg-[rgba(76,175,130,0.08)] text-[#4caf82]"
+                    : "border-[#1e2d3d] bg-[#0a1420] text-[#4d6070]"
+                }`}>
+                  {isCompleted ? <FiCheck className="h-3.5 w-3.5" /> : idx + 1}
+                </div>
+                <span className={`text-[12px] font-medium truncate ${
+                  isActive ? "text-[#c9a84c]" : isCompleted ? "text-[#e8e0d0]" : "text-[#4d6070]"
+                }`}>
+                  {s.label.split(". ")[1]}
+                </span>
+                {idx < stepperSteps.length - 1 && (
+                  <div className={`h-0.5 flex-1 rounded transition hidden sm:block ${
+                    idx < currentActiveIndex ? "bg-[#4caf82]/40" : "bg-[#1e2d3d]"
+                  }`} />
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
+      {/* STEP 1: CONFIGURATION & CASE DATA */}
       {step === "config" && (
-        <div className="max-w-3xl mx-auto">
-          <form onSubmit={handleStartSearch} className="space-y-6 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <form onSubmit={handleStartSearch} className="space-y-6 rounded-xl border border-[#1e2d3d] bg-[#111c27] p-6 shadow-md">
             
             {/* Section 1: Court Selection */}
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-3">
+              <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
                 1. Target Jurisdiction (Court)
-              </label>
+              </span>
               <div className="grid gap-3 sm:grid-cols-3">
                 {COURTS.map((court) => {
                   const isSelected = selectedCourtId === court.id;
@@ -628,26 +744,26 @@ function DocumentGenerator() {
                     <button
                       key={court.id}
                       type="button"
-                      onClick={() => setSelectedCourtId(court.id)}
-                      className={`relative flex flex-col justify-between rounded-xl border p-4 text-left transition duration-200 focus:outline-none ${
+                      onClick={() => handleSelectCourt(court.id)}
+                      className={`relative flex flex-col justify-between rounded-lg border p-4 text-left transition focus:outline-none ${
                         isSelected
-                          ? "border-blue-600 bg-blue-600/5 text-white"
-                          : "border-zinc-800 bg-zinc-950/50 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900"
+                          ? "border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] text-[#e8e0d0]"
+                          : "border-[#1e2d3d] bg-[#0a1420] text-[#8a9baa] hover:border-[rgba(201,168,76,0.2)] hover:bg-[#162030]"
                       }`}
                     >
                       <div className="flex w-full items-center justify-between">
-                        <span className={`text-xs font-semibold uppercase px-2 py-0.5 rounded ${
-                          isSelected ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"
+                        <span className={`text-[10px] font-medium uppercase px-2 py-0.5 rounded ${
+                          isSelected ? "bg-[rgba(201,168,76,0.2)] text-[#c9a84c]" : "bg-[#162030] text-[#4d6070]"
                         }`}>
                           {court.city}
                         </span>
                         {isSelected && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-xs">
-                            <FiCheck className="h-3 w-3" />
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[#0f1923] text-[10px]">
+                            <FiCheck className="h-3 w-3 stroke-[3]" />
                           </span>
                         )}
                       </div>
-                      <span className="mt-4 block font-semibold text-sm text-zinc-200">
+                      <span className="mt-3 block font-semibold text-[13px] text-[#e8e0d0]">
                         {court.shortName}
                       </span>
                     </button>
@@ -658,9 +774,9 @@ function DocumentGenerator() {
 
             {/* Section 2: Document Type */}
             <div>
-              <label className="block text-sm font-medium text-zinc-300 mb-3">
+              <span className="mb-2 block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
                 2. Document Classification
-              </label>
+              </span>
               <div className="grid gap-3 sm:grid-cols-3">
                 {currentDocTypes.map((docType) => {
                   const isSelected = selectedDocTypeId === docType.id;
@@ -668,22 +784,22 @@ function DocumentGenerator() {
                     <button
                       key={docType.id}
                       type="button"
-                      onClick={() => setSelectedDocTypeId(docType.id)}
-                      className={`relative flex flex-col text-left rounded-xl border p-4 transition duration-200 focus:outline-none ${
+                      onClick={() => handleSelectDocType(docType.id)}
+                      className={`relative flex flex-col text-left rounded-lg border p-3.5 transition focus:outline-none ${
                         isSelected
-                          ? "border-blue-600 bg-blue-600/5 text-white"
-                          : "border-zinc-800 bg-zinc-950/50 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900"
+                          ? "border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] text-[#e8e0d0]"
+                          : "border-[#1e2d3d] bg-[#0a1420] text-[#8a9baa] hover:border-[rgba(201,168,76,0.2)] hover:bg-[#162030]"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-sm text-zinc-200">{docType.name}</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-semibold text-[13px] text-[#e8e0d0]">{docType.name}</span>
                         {isSelected && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white text-xs">
-                            <FiCheck className="h-3 w-3" />
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a84c] text-[#0f1923] text-[10px]">
+                            <FiCheck className="h-3 w-3 stroke-[3]" />
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-zinc-500 leading-relaxed">
+                      <span className="text-[11px] text-[#8a9baa] leading-relaxed">
                         {docType.description}
                       </span>
                     </button>
@@ -692,17 +808,17 @@ function DocumentGenerator() {
               </div>
             </div>
 
-            <hr className="border-zinc-800" />
+            <hr className="border-[#1e2d3d]" />
 
             {/* Section 3: Case Data */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
-                3. Case Data
-              </h3>
+              <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
+                3. Case Data & Metadata
+              </span>
               
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                  <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                     Petitioner Name
                   </label>
                   <input
@@ -711,12 +827,12 @@ function DocumentGenerator() {
                     placeholder="e.g., Mian Muhammad Nawaz"
                     value={petitioner}
                     onChange={(e) => setPetitioner(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                    className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                  <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                     Respondent Name(s)
                   </label>
                   <input
@@ -725,14 +841,14 @@ function DocumentGenerator() {
                     placeholder="e.g., Federation of Pakistan"
                     value={respondent}
                     onChange={(e) => setRespondent(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                    className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                   />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                  <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                     Advocate On Record
                   </label>
                   <input
@@ -740,12 +856,12 @@ function DocumentGenerator() {
                     placeholder="e.g., Barrister Ali Zafar"
                     value={advocate}
                     onChange={(e) => setAdvocate(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                    className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                  <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                     Case / Writ Number
                   </label>
                   <input
@@ -753,24 +869,24 @@ function DocumentGenerator() {
                     placeholder="e.g., W.P. No. 1245 / 2026"
                     value={caseNumber}
                     onChange={(e) => setCaseNumber(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                    className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                   />
                 </div>
               </div>
 
               {/* Dynamic Case Data Fields Section */}
               {DYNAMIC_FIELDS_CONFIG[selectedDocTypeId] && DYNAMIC_FIELDS_CONFIG[selectedDocTypeId].length > 0 && (
-                <div className="rounded-xl border border-zinc-850 bg-zinc-950/40 p-5 space-y-4">
-                  <div className="flex items-center gap-2 border-b border-zinc-855 pb-2">
-                    <span className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse" />
-                    <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                        {selectedDocType.name}
-                    </h4>
+                <div className="rounded-lg border border-[#1e2d3d] bg-[#0a1420] p-4 space-y-3">
+                  <div className="flex items-center gap-2 border-b border-[#1e2d3d] pb-2">
+                    <span className="h-2 w-2 rounded-full bg-[#c9a84c] animate-pulse" />
+                    <span className="text-[10px] font-medium text-[#c9a84c] uppercase tracking-[0.1em]">
+                      {selectedDocType.name} Specific Parameters
+                    </span>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {DYNAMIC_FIELDS_CONFIG[selectedDocTypeId].map((field) => (
                       <div key={field.key} className={field.fullWidth ? "sm:col-span-2" : ""}>
-                        <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                        <label className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                           {field.label}
                         </label>
                         <input
@@ -779,7 +895,7 @@ function DocumentGenerator() {
                           placeholder={field.placeholder}
                           value={extraMetadata[field.key] || ""}
                           onChange={(e) => handleExtraMetadataChange(field.key, e.target.value)}
-                          className="w-full rounded-xl border border-zinc-805 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                          className="w-full rounded-lg border border-[#1e2d3d] bg-[#111c27] px-3 py-2 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                         />
                       </div>
                     ))}
@@ -788,23 +904,23 @@ function DocumentGenerator() {
               )}
 
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-                    Subject / Fact Summary
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1.5">
+                  <label className="block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
+                    Case Facts & Legal Dispute (AI Auto-Generates Legal Caption)
                   </label>
                   
-                  
+                  {/* Voice Assist Bar */}
                   <div className="flex items-center gap-3">
                     {isRecording && (
-                      <span className="flex items-center gap-1.5 text-xs text-red-500 font-semibold animate-pulse">
-                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                      <span className="flex items-center gap-1.5 text-[11px] text-[#e05555] font-medium animate-pulse">
+                        <span className="h-2 w-2 rounded-full bg-[#e05555]" />
                         Recording {formatTime(recordingDuration)}
                       </span>
                     )}
                     {recordingState === "transcribing" && (
-                      <span className="flex items-center gap-1.5 text-xs text-blue-500 font-semibold animate-pulse">
-                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                        Transcribing...
+                      <span className="flex items-center gap-1.5 text-[11px] text-[#c9a84c] font-medium animate-pulse">
+                        <span className="h-2 w-2 rounded-full bg-[#c9a84c]" />
+                        Transcribing voice...
                       </span>
                     )}
                     
@@ -813,17 +929,17 @@ function DocumentGenerator() {
                         type="button"
                         onClick={startRecording}
                         disabled={recordingState === "transcribing"}
-                        className="flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-600/10 px-3.5 py-2 text-xs font-bold text-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.15)] transition duration-200 hover:bg-blue-600 hover:text-white hover:border-blue-600 focus:outline-none disabled:opacity-50 cursor-pointer"
+                        className="flex items-center gap-2 rounded-lg border border-[rgba(201,168,76,0.25)] bg-[rgba(201,168,76,0.1)] px-3 py-1.5 text-[12px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.18)] hover:border-[#c9a84c] disabled:opacity-50 cursor-pointer"
                       >
-                        <FiMic className="h-3.5 w-3.5 text-red-500 animate-pulse" /> Dictate Facts (Voice Assist)
+                        <FiMic className="h-3.5 w-3.5 text-[#e05555] animate-pulse" /> Dictate Facts (Voice Assist)
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={stopRecording}
-                        className="flex items-center gap-2 rounded-lg border border-red-600 bg-red-600 px-3.5 py-2 text-xs font-bold text-white shadow-[0_0_15px_rgba(239,68,68,0.45)] transition duration-150 hover:bg-red-700 focus:outline-none cursor-pointer animate-pulse"
+                        className="flex items-center gap-2 rounded-lg border border-[#e05555] bg-[rgba(224,85,85,0.15)] px-3 py-1.5 text-[12px] font-medium text-[#e05555] transition hover:bg-[rgba(224,85,85,0.25)] cursor-pointer"
                       >
-                        <FiSquare className="h-3.5 w-3.5 text-white" /> Stop Recording
+                        <FiSquare className="h-3.5 w-3.5" /> Stop Recording
                       </button>
                     )}
                   </div>
@@ -832,60 +948,67 @@ function DocumentGenerator() {
                 <textarea
                   required
                   rows={4}
-                  placeholder="Describe the legal grievances... You can write manually or click 'Dictate Facts' above to speak into your mic."
+                  placeholder="Describe the facts of your dispute or dictate via microphone (e.g., Petitioner was serving as Associate Professor and terminated without show-cause notice on 10-01-2026...). The system will generate a precise court legal caption automatically."
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150 resize-none"
+                  className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] placeholder-[#2d4a5e] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">
+                <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-[#8a9baa]">
                   Drafting Date
                 </label>
                 <input
                   type="date"
                   value={draftDate}
                   onChange={(e) => setDraftDate(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-650 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition duration-150"
+                  className="w-full rounded-lg border border-[#1e2d3d] bg-[#0a1420] px-3.5 py-2.5 text-[13px] text-[#e8e0d0] focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] transition"
                 />
               </div>
             </div>
 
-            {/* Generate PDF Trigger Button */}
+            {/* Generate Trigger Primary Action Button (Gold Tint per Design Spec) */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-4 text-white font-semibold transition duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 active:scale-[0.99] cursor-pointer shadow-lg shadow-blue-600/10"
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.12)] px-5 py-3 text-[13px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.2)] hover:border-[#c9a84c] cursor-pointer"
             >
-              <FiFileText className="h-5 w-5" /> Compile & Generate Document
+              <FiFileText className="h-4 w-4" /> Compile & Generate Document
             </button>
           </form>
         </div>
       )}
 
+      {/* STEP 2: PRECEDENT CASE LAW CURATION */}
       {step === "curation" && (
-        <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="rounded-xl border border-[#1e2d3d] bg-[#111c27] p-6 shadow-md space-y-5">
             
             {/* Header info */}
-            <div className="border-b border-zinc-800 pb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <FiBookOpen className="text-blue-500" /> Precedent Case Law Curation
+            <div className="border-b border-[#1e2d3d] pb-4">
+              <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#c9a84c] mb-1">
+                PRECEDENT CASE LAW CURATION
+              </span>
+              <h2 className="text-[18px] font-semibold text-[#e8e0d0] flex items-center gap-2">
+                <FiBookOpen className="text-[#c9a84c]" /> Scraped Google Scholar Precedents
               </h2>
-              <p className="text-xs text-zinc-450 mt-1">
-                Select which precedents should be passed as citations to guide the LLM's legal facts and grounds drafting.
+              <p className="text-[12px] text-[#8a9baa] mt-1">
+                Select which scraped precedents should be passed as legal citations to guide the factual and grounds drafting engine.
               </p>
             </div>
 
             {/* Keyword tags */}
             {extractedKeywords.length > 0 && (
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-zinc-450 uppercase tracking-wide">
+                <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
                   Extracted Legal Keywords
-                </label>
+                </span>
                 <div className="flex flex-wrap gap-2">
                   {extractedKeywords.map((kw, i) => (
-                    <span key={i} className="inline-flex items-center rounded-lg bg-blue-600/10 border border-blue-500/20 px-2.5 py-1 text-xs font-medium text-blue-400">
+                    <span 
+                      key={i} 
+                      className="inline-flex items-center rounded-full bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] px-3 py-1 text-[12px] font-medium text-[#c9a84c]"
+                    >
                       {kw}
                     </span>
                   ))}
@@ -895,11 +1018,11 @@ function DocumentGenerator() {
 
             {/* Precedents checklist */}
             <div className="space-y-3">
-              <label className="block text-xs font-semibold text-zinc-450 uppercase tracking-wide">
-                Google Scholar Precedents
-              </label>
+              <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
+                Google Scholar Case Results
+              </span>
 
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
                 {scrapedPrecedents.map((ref, idx) => {
                   const isSelected = !!selectedPrecedentIndices[idx];
                   return (
@@ -911,26 +1034,27 @@ function DocumentGenerator() {
                           [idx]: !prev[idx]
                         }));
                       }}
-                      className={`group flex items-start gap-4 rounded-xl border p-4 text-left transition duration-150 cursor-pointer ${
+                      className={`group flex items-start gap-3.5 rounded-lg border p-4 text-left transition cursor-pointer ${
                         isSelected
-                          ? "border-blue-600 bg-blue-600/5 text-white"
-                          : "border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-705 hover:bg-zinc-900"
+                          ? "border-[rgba(201,168,76,0.4)] bg-[rgba(201,168,76,0.08)] text-[#e8e0d0]"
+                          : "border-[#1e2d3d] bg-[#0a1420] text-[#8a9baa] hover:border-[rgba(201,168,76,0.2)] hover:bg-[#162030]"
                       }`}
                     >
-                      {/* Checkbox */}
-                      <div className="flex h-5 items-center">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          readOnly
-                          className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-blue-600 focus:ring-blue-500 focus:ring-offset-zinc-900 transition"
-                        />
+                      {/* Custom Gold Checkbox */}
+                      <div className="flex h-5 items-center pt-0.5">
+                        <div className={`flex h-4 w-4 items-center justify-center rounded border transition ${
+                          isSelected 
+                            ? "bg-[#c9a84c] border-[#c9a84c] text-[#0f1923]" 
+                            : "border-[#1e2d3d] bg-[#0a1420]"
+                        }`}>
+                          {isSelected && <FiCheck className="h-3 w-3 stroke-[3]" />}
+                        </div>
                       </div>
 
                       {/* Case details */}
-                      <div className="flex-1 space-y-1">
+                      <div className="flex-1 space-y-1.5">
                         <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="font-semibold text-sm text-zinc-200 group-hover:text-white transition">
+                          <span className="font-semibold text-[13px] text-[#e8e0d0] group-hover:text-[#c9a84c] transition">
                             {ref.title}
                           </span>
                           {ref.link && (
@@ -939,25 +1063,25 @@ function DocumentGenerator() {
                               target="_blank" 
                               rel="noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-xs text-blue-500 hover:underline inline-flex items-center gap-0.5"
+                              className="text-[11px] text-[#c9a84c] hover:underline inline-flex items-center gap-1"
                             >
                               Source <FiFile className="h-3 w-3" />
                             </a>
                           )}
                         </div>
                         
-                        <div className="flex items-center gap-3 text-xs text-zinc-500">
+                        <div className="flex items-center gap-3 text-[11px] text-[#8a9baa]">
                           <span>{ref.court}</span>
                           {ref.citedBy && (
-                            <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-400 font-medium">
+                            <span className="rounded bg-[#162030] px-2 py-0.5 text-[#4d6070] font-medium border border-[#1e2d3d]">
                               Cited by {ref.citedBy}
                             </span>
                           )}
                         </div>
 
                         {ref.snippet && (
-                          <p className="text-xs text-zinc-500 leading-relaxed italic bg-zinc-950/20 p-2 rounded border border-zinc-900">
-                            {ref.snippet}
+                          <p className="text-[12px] text-[#8a9baa] leading-relaxed italic bg-[#0a1420] p-2.5 rounded border border-[#1e2d3d]">
+                            "{ref.snippet}"
                           </p>
                         )}
                       </div>
@@ -968,11 +1092,11 @@ function DocumentGenerator() {
             </div>
 
             {/* Stepper Wizard Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 border-t border-zinc-800 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 border-t border-[#1e2d3d] pt-4">
               <button
                 type="button"
                 onClick={() => setStep("config")}
-                className="flex-1 rounded-xl border border-zinc-700 bg-zinc-850 px-5 py-3.5 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-700 hover:text-white focus:outline-none"
+                className="flex-1 rounded-lg border border-[#1e2d3d] bg-[#162030] px-4 py-2.5 text-[13px] font-medium text-[#8a9baa] transition hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
               >
                 Back to Setup
               </button>
@@ -980,7 +1104,7 @@ function DocumentGenerator() {
               <button
                 type="button"
                 onClick={() => handleDraftDirectly(subject)}
-                className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-5 py-3.5 text-sm font-semibold text-zinc-450 transition hover:bg-zinc-900 hover:text-zinc-200 focus:outline-none"
+                className="flex-1 rounded-lg border border-[#1e2d3d] bg-[#162030] px-4 py-2.5 text-[13px] font-medium text-[#8a9baa] transition hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
               >
                 Skip Citations
               </button>
@@ -988,7 +1112,7 @@ function DocumentGenerator() {
               <button
                 type="button"
                 onClick={handleDraftWithCitations}
-                className="flex-[2] rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 shadow-lg shadow-blue-600/10 focus:outline-none flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-[2] rounded-lg border border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.12)] px-4 py-2.5 text-[13px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.2)] hover:border-[#c9a84c] flex items-center justify-center gap-2 cursor-pointer"
               >
                 <FiCheck className="h-4 w-4" /> Compile with Citations
               </button>
@@ -998,82 +1122,83 @@ function DocumentGenerator() {
         </div>
       )}
 
+      {/* STEP LOADING: SEARCHING & DRAFTING */}
       {step === "generating" && (
-        <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
-          <div className="relative flex h-20 w-20 items-center justify-center">
-            
-            <div className="absolute h-full w-full rounded-full border-4 border-zinc-800 border-t-blue-600 animate-spin" />
-            <FiFileText className="h-8 w-8 text-blue-500 animate-pulse" />
+        <div className="flex min-h-[450px] flex-col items-center justify-center rounded-xl border border-[#1e2d3d] bg-[#111c27] p-8 shadow-md">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <div className="absolute h-full w-full rounded-full border-2 border-[#1e2d3d] border-t-[#c9a84c] animate-spin" />
+            <FiFileText className="h-6 w-6 text-[#c9a84c] animate-pulse" />
           </div>
           
-          <h2 className="mt-8 text-xl font-semibold text-white">
-            {loadingPhase === "searching" ? "Searching Case Law Precedents" : "Generating Legal Document"}
+          <h2 className="mt-6 text-[18px] font-semibold text-[#e8e0d0]">
+            {loadingPhase === "searching" ? "Searching Case Law Precedents" : "Compiling Formal Legal Document"}
           </h2>
           
-          <div className="mt-3 w-full max-w-md bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-zinc-800">
+          <div className="mt-4 w-full max-w-md bg-[#0a1420] rounded-full h-2 overflow-hidden border border-[#1e2d3d]">
             <div 
-              className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out" 
+              className="bg-[#c9a84c] h-full rounded-full transition-all duration-500 ease-out" 
               style={{ width: `${((loadingStageIndex + 1) / currentLoadingStages.length) * 100}%` }}
             />
           </div>
 
           {/* Progressive message stages */}
-          <div className="mt-6 h-8 text-center">
-            <p className="text-sm font-medium text-zinc-400 animate-fade-in">
+          <div className="mt-5 h-6 text-center">
+            <p className="text-[13px] font-medium text-[#8a9baa]">
               {currentLoadingStages[loadingStageIndex]}
             </p>
           </div>
           
-          <p className="mt-2 text-xs text-zinc-650">
-            {loadingPhase === "searching" ? "Scanning Google Scholar session..." : "Querying Groq Llama models and compile engine..."}
+          <p className="mt-2 text-[11px] text-[#2d4a5e]">
+            {loadingPhase === "searching" ? "Executing live Google Scholar web scraper..." : "Executing Groq legal drafting engine..."}
           </p>
         </div>
       )}
 
+      {/* STEP 3: LIVE EDITOR & PAPER CANVAS */}
       {step === "editor" && (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="space-y-6">
           
-          {/* Editor Header / Action Row */}
-          <div className="flex flex-col gap-4 rounded-xl border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between shadow-lg">
+          {/* Editor Header / Toolbar */}
+          <div className="flex flex-col gap-3 rounded-xl border border-[#1e2d3d] bg-[#111c27] p-3.5 sm:flex-row sm:items-center sm:justify-between shadow-md">
             
             {/* Left Actions */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setStep("config")}
-                className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-3.5 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-700 hover:text-white"
+                className="flex items-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] px-3 py-1.5 text-[13px] font-medium text-[#8a9baa] transition hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
               >
-                <FiArrowLeft className="h-4 w-4" /> Edit Setup
+                <FiArrowLeft className="h-3.5 w-3.5" /> Edit Setup
               </button>
-              <div className="h-6 w-px bg-zinc-800 hidden sm:block" />
-              <span className="text-xs text-zinc-400 font-medium">
-                Draft Status: <span className="text-emerald-500 font-semibold uppercase">Compiled Live Preview</span>
+              <div className="h-5 w-px bg-[#1e2d3d] hidden sm:block" />
+              <span className="text-[12px] text-[#4d6070] font-medium">
+                Status: <span className="text-[#4caf82] font-semibold uppercase">Compiled Live Preview</span>
               </span>
             </div>
 
             {/* Rich styling utilities */}
-            <div className="flex flex-wrap items-center gap-1.5 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+            <div className="flex flex-wrap items-center gap-1 bg-[#0a1420] p-1 rounded-lg border border-[#1e2d3d]">
               <button 
                 onClick={() => formatText("bold")}
                 title="Bold"
-                className="px-3 py-1.5 rounded text-sm font-bold text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+                className="px-2.5 py-1 rounded text-[12px] font-bold text-[#8a9baa] hover:bg-[#162030] hover:text-[#e8e0d0] transition"
               >
                 B
               </button>
               <button 
                 onClick={() => formatText("italic")}
                 title="Italic"
-                className="px-3 py-1.5 rounded text-sm italic text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+                className="px-2.5 py-1 rounded text-[12px] italic text-[#8a9baa] hover:bg-[#162030] hover:text-[#e8e0d0] transition"
               >
                 I
               </button>
               <button 
                 onClick={() => formatText("underline")}
                 title="Underline"
-                className="px-3 py-1.5 rounded text-sm underline text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+                className="px-2.5 py-1 rounded text-[12px] underline text-[#8a9baa] hover:bg-[#162030] hover:text-[#e8e0d0] transition"
               >
                 U
               </button>
-              <div className="h-4 w-px bg-zinc-800 mx-1" />
+              <div className="h-4 w-px bg-[#1e2d3d] mx-1" />
               <button 
                 onClick={async () => {
                   try {
@@ -1092,13 +1217,13 @@ function DocumentGenerator() {
                     };
                     const freshHtml = await generateDocument(metadata, subject);
                     setEditableContent(freshHtml);
-                    showToast("Document reverted to fresh API template content.");
-                  } catch (err) {
+                    showToast("Document reverted to fresh template content.");
+                  } catch (_err) {
                     showToast("Failed to fetch default content.");
                   }
                 }}
                 title="Revert Content"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] text-[#8a9baa] hover:bg-[#162030] hover:text-[#e8e0d0] transition"
               >
                 <FiRotateCcw className="h-3 w-3" /> Revert
               </button>
@@ -1107,17 +1232,20 @@ function DocumentGenerator() {
             {/* Right Export Actions */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => showToast("Draft saved locally to dashboard database.")}
-                className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-700 hover:text-white"
+                onClick={() => {
+                  saveDraftToLocalStorage(editableContent, null, []);
+                  showToast("Draft saved locally to session database.");
+                }}
+                className="flex items-center gap-2 rounded-lg border border-[#1e2d3d] bg-[#162030] px-3.5 py-1.5 text-[13px] font-medium text-[#8a9baa] transition hover:bg-[#1c2a3a] hover:text-[#e8e0d0]"
               >
-                <FiSave className="h-4 w-4" /> Save Draft
+                <FiSave className="h-3.5 w-3.5" /> Save Draft
               </button>
               
               <button
                 onClick={handleDownload}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 shadow-md shadow-blue-600/10 cursor-pointer"
+                className="flex items-center gap-2 rounded-lg border border-[rgba(201,168,76,0.3)] bg-[rgba(201,168,76,0.12)] px-3.5 py-1.5 text-[13px] font-medium text-[#c9a84c] transition hover:bg-[rgba(201,168,76,0.2)] hover:border-[#c9a84c] cursor-pointer"
               >
-                <FiDownload className="h-4 w-4" /> Download PDF
+                <FiDownload className="h-3.5 w-3.5" /> Download PDF
               </button>
             </div>
 
@@ -1125,55 +1253,83 @@ function DocumentGenerator() {
 
           <div className="grid gap-6 lg:grid-cols-12">
             
-            <div className="lg:col-span-8 bg-zinc-950 p-8 rounded-2xl border border-zinc-800 flex justify-center shadow-inner overflow-x-auto min-h-[850px]">
+            {/* Main Canvas Area */}
+            <div className="lg:col-span-8 bg-[#0a1420] p-6 rounded-xl border border-[#1e2d3d] flex justify-center shadow-inner overflow-x-auto min-h-[800px]">
               
-              
-              <div className="w-full max-w-[800px] min-h-[1050px] bg-white text-zinc-900 p-16 md:p-20 shadow-2xl rounded-sm border border-zinc-200 flex flex-col justify-between font-serif relative">
-                
+              <div className="w-full max-w-[800px] min-h-[1000px] bg-white text-zinc-900 p-12 md:p-16 shadow-2xl rounded-sm border border-zinc-300 flex flex-col justify-between font-serif relative">
                 
                 <div className="absolute left-10 md:left-12 top-0 bottom-0 border-l border-red-200 pointer-events-none" />
                 <div className="absolute left-[44px] md:left-[52px] top-0 bottom-0 border-l-2 border-red-300/40 pointer-events-none" />
-                
                 
                 <div 
                   ref={editorRef}
                   contentEditable={true}
                   suppressContentEditableWarning={true}
-                  className="pl-8 md:pl-10 w-full h-full outline-none focus:outline-none select-text cursor-text"
+                  className="pl-8 md:pl-10 w-full h-full outline-none focus:outline-none select-text cursor-text leading-relaxed text-[15px]"
                   onBlur={(e) => setEditableContent(e.currentTarget.innerHTML)}
                   dangerouslySetInnerHTML={{ __html: editableContent }}
                 />
 
                 <div className="absolute bottom-4 right-8 font-sans text-[10px] text-zinc-400 pointer-events-none select-none">
-                  Page 1 of 1 (Intelex Draft Compiler)
+                  Intelex Legal Draft Engine — Page 1 of 1
                 </div>
               </div>
 
             </div>
 
-            
-            <div className="lg:col-span-4 space-y-6">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 space-y-4 shadow-lg">
-                <h3 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
-                  <FiEdit className="text-blue-500" /> Editing Canvas Instructions
+            {/* Side Panel: Instructions & Meta */}
+            <div className="lg:col-span-4 space-y-5">
+              <div className="rounded-xl border border-[#1e2d3d] bg-[#111c27] p-5 space-y-3.5 shadow-md">
+                <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#c9a84c]">
+                  EDITING CANVAS GUIDE
+                </span>
+                <h3 className="text-[14px] font-semibold text-[#e8e0d0] flex items-center gap-2">
+                  <FiEdit className="text-[#c9a84c]" /> Live Paper Canvas
                 </h3>
-                <ul className="space-y-3 text-xs text-zinc-400 leading-relaxed list-disc pl-4">
+                <ul className="space-y-2.5 text-[12px] text-[#8a9baa] leading-relaxed list-disc pl-4">
                   <li>
-                    The page behaves like a live paper editor. You can **click anywhere on the text** to edit, insert details, or delete paragraphs directly.
+                    Click anywhere on the document canvas to edit facts, grounds, or prayer statements directly.
                   </li>
                   <li>
-                    Use the toolbar above to apply text decoration styling (bold, italic, underline) or reset parameters.
+                    Use formatting tools on top (Bold, Italic, Underline) to apply text styles.
                   </li>
                   <li>
-                    Once finalized, click <strong className="text-white">Download PDF</strong> to export this document as a printable vector PDF file.
+                    Click <strong className="text-[#e8e0d0]">Full Preview & Print</strong> to open a print-ready view with full metadata summary.
                   </li>
                   <li>
-                    Changes are stored locally in the draft session; use <strong className="text-white">Save Draft</strong> to sync changes with the case book.
+                    Click <strong className="text-[#c9a84c]">Download PDF</strong> to export as a vector PDF.
                   </li>
                 </ul>
               </div>
 
-              
+              <div className="rounded-xl border border-[#1e2d3d] bg-[#111c27] p-5 space-y-3 shadow-md">
+                <span className="block text-[10px] font-medium uppercase tracking-[0.12em] text-[#4d6070]">
+                  CASE PARAMETERS
+                </span>
+                <div className="space-y-2 text-[12px]">
+                  <div className="flex justify-between border-b border-[#1e2d3d] pb-1.5">
+                    <span className="text-[#4d6070]">Jurisdiction</span>
+                    <span className="font-medium text-[#e8e0d0]">{selectedCourt.shortName}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#1e2d3d] pb-1.5">
+                    <span className="text-[#4d6070]">Document Type</span>
+                    <span className="font-medium text-[#c9a84c]">{selectedDocType.name}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#1e2d3d] pb-1.5">
+                    <span className="text-[#4d6070]">Petitioner</span>
+                    <span className="font-medium text-[#e8e0d0] truncate max-w-[150px]">{petitioner || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#1e2d3d] pb-1.5">
+                    <span className="text-[#4d6070]">Respondent</span>
+                    <span className="font-medium text-[#e8e0d0] truncate max-w-[150px]">{respondent || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#4d6070]">Advocate</span>
+                    <span className="font-medium text-[#e8e0d0] truncate max-w-[150px]">{advocate || "N/A"}</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
           </div>

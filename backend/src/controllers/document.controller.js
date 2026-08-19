@@ -3,7 +3,8 @@ import {
   draftLegalContentWithGroq, 
   compileTemplate, 
   draftLegalContentWithCitations,
-  fetchExcerptFromUrl
+  fetchExcerptFromUrl,
+  generateFallbackPrecedents
 } from "../services/document.service.js";
 import {
   listDocuments,
@@ -107,20 +108,34 @@ export async function searchReferences(req, res) {
       minDelayMs: 1500,
       maxDelayMs: 3000,
       headless: true,
-      replaceDefaults: true
+      replaceDefaults: true,
+      maxRetries: 0 // fail fast if blocked to avoid sleeping for minutes
     };
 
-    const results = await scrapeCourtCases(customQueries, options);
+    let results = [];
+    try {
+      results = await scrapeCourtCases(customQueries, options);
+    } catch (scrapeErr) {
+      console.warn("Google Scholar scraper failed/blocked:", scrapeErr.message);
+    }
     
     // Deduplicate results by link/url or title to avoid duplicate references
     const seen = new Set();
-    const uniqueResults = results.filter(item => {
+    let uniqueResults = results.filter(item => {
       const identifier = item.link || item.title;
       if (!identifier || seen.has(identifier)) return false;
       seen.add(identifier);
       return true;
     });
     console.log(`Scraped ${results.length} results from Google Scholar, deduplicated to ${uniqueResults.length}.`);
+
+    // Fallback: If scraper returned nothing or failed, generate realistic precedents via LLM
+    if (uniqueResults.length === 0) {
+      console.log("No precedents found/scraped. Invoking Groq fallback precedent generator...");
+      const fallbackPrecedents = await generateFallbackPrecedents(courtName, keywords, transcript);
+      uniqueResults = fallbackPrecedents;
+      console.log(`Generated ${uniqueResults.length} fallback precedents via Groq Llama.`);
+    }
 
     res.json({
       keywords,

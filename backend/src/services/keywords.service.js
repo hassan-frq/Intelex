@@ -9,7 +9,7 @@ export async function extractKeywordsWithGroq(transcript) {
   }
 
   
-  const models = ["llama-3.3-70b-versatile", "llama3-8b-8192"];
+  const models = ["groq/compound-mini", "groq/compound"];
   let lastError = null;
 
   for (const model of models) {

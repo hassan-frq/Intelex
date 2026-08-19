@@ -542,14 +542,28 @@ function DocumentGenerator() {
     element.style.width = "100%";
     element.style.padding = "0.2in 0.2in 0.2in 0.5in"; 
     element.innerHTML = content;
-    
+
+    // Inject styles to avoid page-break inside key block elements,
+    // which prevents text lines from being sliced in half horizontally (distortion).
+    const style = document.createElement("style");
+    style.innerHTML = `
+      p, li, tr, th, td, h1, h2, h3, h4, h5, h6, table, blockquote, 
+      .party-block, .party-row, .versus-row, 
+      .court-header, .court-jurisdiction, .case-number, 
+      .subject-title, .salutation, .section-title, .footer-block, .legal-block {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    `;
+    element.appendChild(style);
     
     const opt = {
       margin:       [0.8, 1.2, 0.8, 0.8], // [top, left, bottom, right] in inches
       filename:     `${selectedDocType.id}_supreme_court.pdf`.toLowerCase(),
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'legacy'] }
     };
     
     // Trigger download

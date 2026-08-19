@@ -216,7 +216,7 @@ export async function compileTemplate(metadata, draftData) {
     .replace(/\{\{advocate\}\}/g, metadata.advocate || "[Advocate Name]")
     .replace(/\{\{draftDate\}\}/g, metadata.draftDate || new Date().toISOString().split("T")[0])
     .replace(/\{\{caseId\}\}/g, String(metadata.caseId || 1))
-    .replace(/\{\{facts\}\}/g, mergedStatementsHtml)
+    .replace(/\{\{facts\}\}/g, rawHtml.includes("{{grounds}}") ? factsListHtml : mergedStatementsHtml)
     .replace(/\{\{grounds\}\}/g, groundsListHtml || "<li>That the impugned action violates fundamental rights under the Constitution.</li>")
     .replace(/\{\{prayer\}\}/g, parseMarkdownLinks(draftData.prayer || ""))
     .replace(/\{\{questionsOfLaw\}\}/g, questionsListHtml)

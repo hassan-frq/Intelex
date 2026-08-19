@@ -83,9 +83,19 @@
       padding-left: 0.5in;
       text-align: justify;
     }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
     .statement-list li {
       margin-bottom: 12pt;
       padding-left: 5pt;
+      display: list-item;
     }
     .footer-block {
       display: flex;
@@ -131,7 +141,7 @@
   </div>
 
   <div class="section-title">STATEMENT OF CONSTITUTIONAL IMPASSE / FACTS:</div>
-  <ol class="statement-list">
+  <ol class="statement-list" type="A">
     {{facts}}
   </ol>
 

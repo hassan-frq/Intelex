@@ -50,16 +50,16 @@
       margin-bottom: 25px;
     }
     .party-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      display: block;
       margin-bottom: 10px;
     }
     .party-name {
-      max-width: 75%;
+      display: block;
+      width: 100%;
     }
     .party-role {
-      white-space: nowrap;
+      display: block;
+      text-align: right;
     }
     .versus-row {
       text-align: center;
@@ -114,9 +114,19 @@
       padding-left: 0.5in;
       text-align: justify;
     }
+    ol.statement-list {
+      list-style-type: decimal;
+    }
+    ol.statement-list[type="A"] {
+      list-style-type: upper-alpha;
+    }
+    ol.statement-list[type="1"] {
+      list-style-type: decimal;
+    }
     .statement-list li {
       margin-bottom: 12pt;
       padding-left: 5pt;
+      display: list-item;
     }
     .prayer-body {
       text-align: justify;
@@ -204,12 +214,12 @@
     RESPECTFULLY SHEWETH:
   </div>
 
-  <ol class="statement-list">
+  <ol class="statement-list" type="A">
     {{facts}}
   </ol>
 
   <div class="section-title">GROUNDS:</div>
-  <ol class="statement-list" type="A">
+  <ol class="statement-list" type="1">
     {{grounds}}
   </ol>
 
